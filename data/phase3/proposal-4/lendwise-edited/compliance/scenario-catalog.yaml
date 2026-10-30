@@ -1,0 +1,54 @@
+# Mitro synthetic code-analysis scenarios. These are test fixtures, not legal conclusions.
+scenario_type: engineering_test_only
+finding_policy: Amend must not report a regulatory finding unless a relevant approved obligation is linked.
+planted_issues:
+  - id: LW-PII-01
+    label: Collecting unnecessary customer information
+    detects: Excessive fields collected at application intake, including date of birth, full address, employer, and bank account number.
+    likely_files: [app/schemas.py, app/models.py, app/routers/applications.py]
+  - id: LW-CONSENT-01
+    label: Missing consent validation
+    detects: Legacy import intake accepts and stores an application without consent capture or validation.
+    likely_files: [app/schemas.py, app/routers/applications.py]
+  - id: LW-LOG-01
+    label: Sensitive information in application logs
+    detects: Phone number and PAN suffix included in application-created log message.
+    likely_files: [app/routers/applications.py]
+  - id: LW-ACCESS-01
+    label: Missing access control on customer records
+    detects: Support customer lookup accepts a customer identifier without an authentication or ownership check.
+    likely_files: [app/routers/servicing.py]
+  - id: LW-INTEGRATION-01
+    label: Insecure third-party API integration
+    detects: KYC HTTP client disables TLS certificate verification and transmits identity fields.
+    likely_files: [app/services/kyc_provider.py]
+  - id: LW-RETENTION-01
+    label: No retention or deletion mechanism
+    detects: Customer and application records have no lifecycle/deletion mechanism in this fixture.
+    likely_files: [app/models.py, app/routers]
+  - id: LW-VENDOR-01
+    label: Missing vendor access monitoring
+    detects: KYC request and response activity is not written to a vendor access audit record.
+    likely_files: [app/services/kyc_provider.py, app/models.py]
+  - id: LW-DLG-01
+    label: ECL does not reflect reduced DLG cover after invocation
+    regulation_reference: RBI NBFC IRACP Amendment Directions, 2026, paragraph 36C
+    detects: The simplified stage-level ECL helper deducts the original DLG cover even after part of that cover has been invoked.
+    likely_files: [app/services/provisioning.py]
+decoys:
+  - id: LW-DECOY-CONSENT-01
+    label: Consent is validated on the primary application route
+    description: POST /applications rejects consent=false; do not report that route as missing consent validation.
+    likely_files: [app/routers/applications.py]
+  - id: LW-DECOY-LOG-01
+    label: A safe logging helper omits customer data
+    description: The helper logs only an application surrogate ID and event name.
+    likely_files: [app/services/safe_patterns.py]
+  - id: LW-DECOY-ACCESS-01
+    label: Ownership-scoped query helper
+    description: The helper scopes an application lookup by both record ID and authenticated customer ID.
+    likely_files: [app/services/safe_patterns.py]
+  - id: LW-DECOY-DLG-01
+    label: ECL without DLG remains unadjusted
+    description: A separate no-DLG calculation does not subtract any guarantee cover.
+    likely_files: [app/services/provisioning.py]

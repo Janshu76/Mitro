@@ -1,0 +1,56 @@
+sources:
+  - id: rbi-digital-lending-2022
+    regulator: RBI
+    identifier: RBI/2022-23/111
+    title: Guidelines on Digital Lending, RBI/2022-23/111
+    publication_date: 2022-09-02
+    official_url: https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12382&Mode=0
+    acquired: official_source_reference
+  - id: rbi-nbfc-misc-directions-2025
+    regulator: RBI
+    identifier: RBI Master Direction 12931
+    title: NBFC Miscellaneous Directions, 2025
+    official_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12931
+    acquired: user_supplied_reference
+  - id: rbi-nbfc-iracp-directions-2025
+    regulator: RBI
+    identifier: RBI Master Direction 12948
+    title: NBFC Income Recognition, Asset Classification and Provisioning Directions, 2025
+    official_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12948
+    acquired: verified_official_rbi_master_direction
+  - id: rbi-nbfc-iracp-amendment-dlg-2026
+    regulator: RBI
+    identifier: RBI/2025-26/210
+    document_type: amendment_direction
+    title: NBFC IRACP Amendment Directions, 2026 - DLG provisioning
+    publication_date: 2026-02-13
+    official_url: https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=13294&Mode=0
+    acquired: user_supplied_text_cross_checked_against_official_RBI_page
+  - id: rbi-nbfc-credit-facilities-directions-2025
+    regulator: RBI
+    identifier: RBI Master Direction 12957
+    title: NBFC Credit Facilities Directions, 2025
+    official_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12957
+    acquired: user_supplied_reference
+  - id: rbi-nbfc-transfer-distribution-credit-risk-directions-2025
+    regulator: RBI
+    identifier: RBI Master Direction 12952
+    title: NBFC Transfer and Distribution of Credit Risk Directions, 2025
+    official_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12952
+    acquired: user_supplied_reference
+  - id: meity-dpdp-rules-2025
+    regulator: MeitY
+    identifier: G.S.R. 846(E)
+    document_type: rules
+    title: Digital Personal Data Protection Rules, 2025, G.S.R. 846(E)
+    publication_date: 2025-11-13
+    official_url: https://www.meity.gov.in/static/uploads/2025/11/53450e6e5dc0bfa85ebd78686cadad39.pdf
+    official_index: https://www.meity.gov.in/documents/act-and-policies/digital-personal-data-protection-rules-2025-gDOxUjMtQWa
+    acquired: verified_official_source_reference
+  - id: egazette-dpdp-commencement-2025
+    regulator: MeitY
+    identifier: G.S.R. 843(E)/2025-11-13
+    document_type: notification
+    title: DPDP Act, 2023 commencement notification, G.S.R. 843(E)
+    official_url: https://egazette.gov.in/WriteReadData/2025/267647.pdf
+    acquired: user_collected_official_copy

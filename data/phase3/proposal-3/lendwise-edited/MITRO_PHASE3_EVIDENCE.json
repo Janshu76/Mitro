@@ -1,0 +1,19 @@
+{
+  "proposal_id": 3,
+  "scenario": "dlg_invocation_recompute",
+  "title": "Recompute ECL using the reduced DLG cover",
+  "source_document": "RBI/2025-26/210",
+  "source_citation": "36C",
+  "source_url": "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=13294&Mode=0",
+  "source_sha256": "fa6f0622de3f6b496fab1f11ed6d6915c434a4aa3f03bcffd84779eaa98f6a14",
+  "verbatim_quote": "Since upon every event of invocation of DLG, the DLG cover reduces to the extent of invocation, an NBFC shall recompute their ECL provisioning requirements across stages, after duly adjusting for the reduced DLG cover.”",
+  "expected_behavior": "After a DLG invocation, remaining cover equals max(original cover minus the invocation, zero); the ECL calculation uses that remaining cover.",
+  "generated_test": "tests/test_mitro_phase3_generated.py",
+  "test_status": "passed",
+  "test_output": "test_invocation_reduces_cover_before_recomputing_ecl (test_mitro_phase3_generated.DlgInvocationRegression.test_invocation_reduces_cover_before_recomputing_ecl) ... ok\ntest_no_dlg_decoy_keeps_gross_ecl (test_mitro_phase3_generated.DlgInvocationRegression.test_no_dlg_decoy_keeps_gross_ecl) ... ok\ntest_recompute_clamps_remaining_cover_at_zero (test_mitro_phase3_generated.DlgInvocationRegression.test_recompute_clamps_remaining_cover_at_zero) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK",
+  "original_source_modified": false,
+  "limitations": [
+    "Synthetic demonstration only; not a regulatory finding or legal/accounting opinion.",
+    "Patch template and test behavior require qualified human review."
+  ]
+}

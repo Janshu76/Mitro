@@ -1,0 +1,10 @@
+app_dir: targets/lendwise
+mfa_dependency: require_mfa
+data_classes:
+  personal_identity: [pan, aadhaar, full_name, date_of_birth, phone, email, address]
+  financial_account: [bank_account, account_number, upi_id, ifsc]
+  credit_and_loan: [loan, credit_score, risk_score, repayment, outstanding, principal]
+  consent_record: [consent, purpose, withdrawal]
+sink_folders:
+  - var/exports
+  - var/log

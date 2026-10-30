@@ -1,0 +1,19 @@
+{
+  "proposal_id": 4,
+  "scenario": "legacy_import_consent",
+  "title": "Require consent on the legacy import path",
+  "source_document": "RBI/2022-23/111",
+  "source_citation": "10",
+  "source_url": "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12382&Mode=0",
+  "source_sha256": "2bb30a786e1b9898d80cdf1953a7543fd56fce2b5ef30550a4f4bb231f45af38",
+  "verbatim_quote": "Collection, usage and sharing of data with third parties 10.1. REs shall ensure that any collection of data by their DLAs and DLAs of their LSPs is need-based and with prior and explicit consent of the borrower having audit trail. In any case, REs shall also ensure that DLAs desist from accessing mobile phone resources like file and media, contact list, call logs, telephony functions,",
+  "expected_behavior": "The legacy import endpoint rejects a request without affirmative consent before creating a customer record.",
+  "generated_test": "tests/test_mitro_phase3_generated.py",
+  "test_status": "passed",
+  "test_output": "test_missing_consent_is_rejected_before_customer_write (test_mitro_phase3_generated.ConsentRegression.test_missing_consent_is_rejected_before_customer_write) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.000s\n\nOK",
+  "original_source_modified": false,
+  "limitations": [
+    "Synthetic demonstration only; not a regulatory finding or legal/accounting opinion.",
+    "Patch template and test behavior require qualified human review."
+  ]
+}

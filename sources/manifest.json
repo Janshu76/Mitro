@@ -1,0 +1,125 @@
+{
+  "documents": [
+    {
+      "path": "sources/460MD930686EC27D04B4AA9DF4A3481CDD465.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/460",
+      "title": "RBI NBFC Compliance Function Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/461MD9FAF2CD7550844EE9A70C884DBE4A8A6.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/461",
+      "title": "RBI NBFC Cybersecurity, Technology: Risk, Resilience and Assurance Framework Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/462MD7323FF342D124FAF9BC3B3F7E4F837A5.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/462",
+      "title": "RBI NBFC Digital Payment Security Controls Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/463MDC5167A28A3B24A2B856804E201261635.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/463",
+      "title": "RBI NBFC Fraud Risk Management Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/464MD4F5E2EE83BB848DFB6B3475F8B91F45B.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/464",
+      "title": "RBI NBFC Internal Audit Function Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/465MD03A0FCE0832642DDAAE82DB2FBC920C8.pdf",
+      "regulator": "RBI",
+      "identifier": "RBI/DoS/2026-27/465",
+      "title": "RBI NBFC Statutory Audit Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-07-31",
+      "version_date": "2026-07-31",
+      "source_url": "",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/c56ceae6c383460ca69577428d36828b.pdf",
+      "regulator": "MeitY",
+      "identifier": "G.S.R. 843(E)/2025-11-13",
+      "title": "DPDP Act, 2023 commencement notification",
+      "document_type": "act_commencement_notification",
+      "publication_date": "2025-11-13",
+      "version_date": "2025-11-13",
+      "source_url": "https://egazette.gov.in/WriteReadData/2025/267647.pdf",
+      "source_kind": "user_collected_official_copy"
+    },
+    {
+      "path": "sources/rbi-internal-ombudsman-2026.txt",
+      "regulator": "RBI",
+      "identifier": "RBI/CEPD/2025-26/384",
+      "title": "RBI NBFC Internal Ombudsman Directions, 2026",
+      "document_type": "direction",
+      "publication_date": "2026-01-14",
+      "version_date": "2026-01-14",
+      "source_url": "",
+      "source_kind": "user_supplied_pasted_text"
+    },
+    {
+      "path": "sources/rbi-credit-risk-related-party-2026.txt",
+      "regulator": "RBI",
+      "identifier": "RBI/2025-26/179",
+      "title": "RBI NBFC Credit Risk Management Amendment Directions, 2026",
+      "document_type": "amendment_direction",
+      "publication_date": "2026-01-05",
+      "version_date": "2026-01-05",
+      "source_url": "",
+      "source_kind": "user_supplied_pasted_text"
+    },
+    {
+      "path": "sources/rbi-dlg-provisioning-amendment-2026.txt",
+      "regulator": "RBI",
+      "identifier": "RBI/2025-26/210",
+      "title": "RBI NBFC IRACP Amendment Directions, 2026 - DLG provisioning",
+      "document_type": "amendment_direction",
+      "publication_date": "2026-02-13",
+      "version_date": "2026-02-13",
+      "source_url": "https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=13294&Mode=0",
+      "source_kind": "user_supplied_pasted_text"
+    },
+    {
+      "path": "sources/rbi-nucfdc-private-placement-amendment-2026.txt",
+      "regulator": "RBI",
+      "identifier": "RBI/DoR/2025-26/224",
+      "title": "RBI NBFC Miscellaneous Amendment Directions, 2026 - NUCFDC private placement",
+      "document_type": "amendment_direction",
+      "publication_date": "2026-02-26",
+      "version_date": "2026-02-26",
+      "source_url": "",
+      "source_kind": "user_supplied_pasted_text"
+    }
+  ]
+}

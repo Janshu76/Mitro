@@ -1,0 +1,31 @@
+RBI/2025-26/210
+DOR.STR.REC.413/21-07-001/2025-26
+
+February 13, 2026
+
+Reserve Bank of India (Non-Banking Financial Companies – Income Recognition, Asset Classification and Provisioning) Amendment Directions, 2026
+
+Please refer to Reserve Bank of India (Non-Banking Financial Companies – Income Recognition, Asset Classification and Provisioning) Directions, 2025 (hereinafter referred to as ‘the Directions’).
+
+2. Default Loss Guarantee (DLG) arrangements which are otherwise treated as ‘synthetic securitisation’ and are prohibited, were permitted in the limited case of digital lending vide circular dated June 08, 2023. Subsequently, the same was also permitted for co-lending arrangements vide Directions issued on August 06, 2025.
+
+3. On a review, to ensure consistency in application of prudential principles, in exercise of the powers conferred by the Chapter III B of the Reserve Bank of India Act, 1934 and all other laws enabling the Reserve Bank in this regard, the Reserve Bank being satisfied that it is necessary and expedient in the public interest so to do, hereby issues the Amendment Directions hereinafter specified.
+
+4. These Amendment Directions modify the Directions as under:
+
+New paras 36A, 36B and 36C shall be inserted as below:
+
+“C1. Provisioning for portfolios covered by Default Loss Guarantee (DLG) arrangements
+
+36A. For loan portfolios covered by Default Loss Guarantee (DLG) arrangements in terms of Chapter III of the Reserve Bank of India (Non-Banking Financial Companies – Credit Facilities) Directions, 2025 and Part B of the Reserve Bank of India (Non-Banking Financial Companies – Transfer and Distribution of Credit Risk) Directions, 2025 both dated November 28, 2025, an NBFC may consider the DLG for determining provisions under the Expected Credit Loss framework across all stages, subject to the requirements as laid down under Indian Accounting Standards, which inter alia require the DLG arrangement to be integral to the contractual terms of the loan and the DLG not being recognised separately.
+
+36B. An NBFC shall comply with the disclosure requirements as prescribed under IndAS 1.
+
+36C. Since upon every event of invocation of DLG, the DLG cover reduces to the extent of invocation, an NBFC shall recompute their ECL provisioning requirements across stages, after duly adjusting for the reduced DLG cover.”
+
+5. Consequential amendments have also been made vide Reserve Bank of India (Non-Banking Financial Companies – Credit Facilities) Amendment Directions, 2026 dated February 13, 2026.
+
+6. The above amendment shall come into force immediately.
+
+(Vaibhav Chaturvedi)
+Chief General Manager
