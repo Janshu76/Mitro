@@ -35,6 +35,26 @@ planted_issues:
     regulation_reference: RBI NBFC IRACP Amendment Directions, 2026, paragraph 36C
     detects: The simplified stage-level ECL helper deducts the original DLG cover even after part of that cover has been invoked.
     likely_files: [app/services/provisioning.py]
+  - id: LW-DL-KFS-01
+    label: Incomplete loan offer disclosure and no recorded KFS acceptance
+    regulation_reference: RBI Guidelines on Digital Lending, paragraphs 5.2-5.3; RBI Key Facts Statement (KFS) for Loans & Advances, RBI/2024-25/18
+    detects: Offer omits APR and required loan information, does not deliver a standardized KFS, and does not record prospective borrower acceptance before contract execution.
+    likely_files: [app/routers/applications.py, app/services/digital_lending_controls.py]
+  - id: LW-DL-EXIT-01
+    label: Digital loan cooling-off exit is unavailable
+    regulation_reference: RBI Guidelines on Digital Lending, paragraph 8
+    detects: Exit path rejects borrowers without applying the Board-determined cooling-off period or calculating principal plus proportionate APR without penalty.
+    likely_files: [app/routers/customer_protection.py, app/services/digital_lending_controls.py]
+  - id: LW-GRIEVANCE-01
+    label: Complaint intake has no officer routing or lifecycle tracking
+    regulation_reference: RBI Guidelines on Digital Lending, paragraphs 6.1-6.2
+    detects: Complaint is acknowledged but not routed to a designated grievance redressal officer, assigned a trackable identifier, or monitored for resolution/escalation.
+    likely_files: [app/routers/customer_protection.py, app/services/digital_lending_controls.py]
+  - id: LW-DPDP-BREACH-01
+    label: Personal-data incident has no notification workflow
+    regulation_reference: Digital Personal Data Protection Rules, 2025, rule 7 (subject to phased commencement)
+    detects: Incident is recorded without a workflow to notify affected data principals and the Data Protection Board as applicable.
+    likely_files: [app/routers/customer_protection.py, app/services/digital_lending_controls.py]
 decoys:
   - id: LW-DECOY-CONSENT-01
     label: Consent is validated on the primary application route

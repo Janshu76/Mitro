@@ -6,6 +6,23 @@ sources:
     publication_date: 2022-09-02
     official_url: https://www.rbi.org.in/Scripts/NotificationUser.aspx?Id=12382&Mode=0
     acquired: official_source_reference
+  - id: rbi-kfs-loans-advances-2024
+    regulator: RBI
+    identifier: RBI/2024-25/18; DOR.STR.REC.13/13.03.00/2024-25
+    document_type: circular
+    title: Key Facts Statement (KFS) for Loans & Advances
+    publication_date: 2024-04-15
+    official_url: https://website.rbi.org.in/web/rbi/-/notifications/key-facts-statement-kfs-for-loans-advances
+    acquired: verified_official_source_reference
+    notes: Harmonised KFS instructions for retail and MSME term loans, including digital lending; applicability depends on loan and entity scope.
+  - id: rbi-it-governance-2023
+    regulator: RBI
+    identifier: DoS.CO.CSITEG/SEC.7/31.01.015/2023-24
+    document_type: master_direction
+    title: Information Technology Governance, Risk, Controls and Assurance Practices Directions, 2023
+    publication_date: 2023-11-07
+    official_url: https://www.rbi.org.in/Scripts/BS_ViewMasDirections.aspx?id=12562
+    acquired: verified_official_source_reference
   - id: rbi-nbfc-misc-directions-2025
     regulator: RBI
     identifier: RBI Master Direction 12931

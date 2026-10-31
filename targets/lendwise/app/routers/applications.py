@@ -6,6 +6,7 @@ from app.models import Customer, LoanApplication, LoanAccount
 from app.schemas import ApplicationIn, LegacyImportIn
 from app.services.kyc_provider import verify_identity
 from app.services.credit_policy import score_application
+from app.services.digital_lending_controls import build_incomplete_kfs
 
 router = APIRouter(tags=["applications"])
 log = logging.getLogger("lendwise.applications")
@@ -59,6 +60,14 @@ def evaluate_application(application_id: int, db: Session = Depends(get_db)):
                            principal=application.requested_amount, outstanding=application.requested_amount))
     db.commit()
     return {"application_id": application.id, "status": application.status, "score": score, "reason": reason}
+
+@router.get("/applications/{application_id}/offer")
+def get_digital_loan_offer(application_id: int, db: Session = Depends(get_db)):
+    application = db.get(LoanApplication, application_id)
+    if not application:
+        raise HTTPException(404, "Application not found")
+    # PLANTED ISSUE: the offer omits the required KFS/APR and is returned without recording borrower acceptance.
+    return build_incomplete_kfs(application.requested_amount)
 
 @router.get("/applications/{application_id}")
 def get_application(application_id: int, db: Session = Depends(get_db)):
