@@ -15,6 +15,10 @@ RULES = {
     "consent_related_code": (re.compile(r"\b(?:consent|permission|opt_in|optin|withdraw_consent)\b", re.I), "info", "Consent-related implementation location; inspect enforcement and withdrawal behavior."),
     "third_party_call": (re.compile(r"\b(?:requests\.(?:get|post|put)|httpx\.(?:get|post|put)|fetch\s*\(|axios\.(?:get|post)|urlopen\s*\()", re.I), "info", "Outbound API call; review authentication, TLS, data minimisation, and vendor oversight."),
     "retention_or_deletion_code": (re.compile(r"\b(?:retention|delete|erase|purge|expire|ttl)\b", re.I), "info", "Data lifecycle control location; confirm coverage and scheduled execution."),
+    "kfs_disclosure_review": (re.compile(r"^\s*def build_incomplete_kfs\s*\(", re.I | re.M), "high", "Loan offer path appears to use an explicitly incomplete KFS fixture; review APR, charges, required disclosures, delivery, and borrower acceptance."),
+    "cooling_off_exit_review": (re.compile(r"^\s*def request_cooling_off_exit\s*\(", re.I | re.M), "medium", "Digital-loan exit path appears incomplete; review the applicable Board-set cooling-off window and proportionate APR calculation."),
+    "grievance_workflow_review": (re.compile(r"^\s*def accept_complaint\s*\(", re.I | re.M), "medium", "Complaint intake appears to acknowledge without routing or lifecycle tracking; review grievance officer details, ownership, and applicable timelines."),
+    "personal_data_breach_response_review": (re.compile(r"^\s*def record_personal_data_incident\s*\(", re.I | re.M), "high", "Personal-data incident path appears to record without notification; review applicable affected-person and authority intimation duties and commencement dates."),
 }
 
 def _source_files(root: Path):
