@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09080e">
+  <meta name="description" content="A standalone landing page concept for Mitro, the regulatory intelligence and engineering review workspace.">
+  <title>Mitro — Regulatory clarity, built for engineering</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #09080e;
+      --surface: #111019;
+      --surface-raised: #17141f;
+      --surface-soft: #1d1927;
+      --line: #ffffff14;
+      --line-strong: #ffffff24;
+      --ink: #f5f2fa;
+      --muted: #a7a1b3;
+      --quiet: #777183;
+      --pink: #f263e8;
+      --violet: #a879ff;
+      --green: #81dbaf;
+      --amber: #f0c47b;
+      --font: "Segoe UI Variable", "Aptos", "Inter", system-ui, sans-serif;
+      --display: "Segoe UI Variable Display", "Aptos Display", "Segoe UI Variable", "Inter", system-ui, sans-serif;
+      --content: 1160px;
+    }
+    *, *::before, *::after { box-sizing: border-box }
+    html { scroll-behavior: smooth; scroll-padding-top: 85px }
+    body {
+      min-width: 320px;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 9% 9%, #852c762b 0, transparent 26rem),
+        radial-gradient(ellipse at 88% 37%, #54368d1d 0, transparent 31rem),
+        var(--page);
+      color: var(--ink);
+      font: 15px/1.65 var(--font);
+      font-feature-settings: "ss01" on;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none }
+    button { font: inherit }
+    a:focus-visible, button:focus-visible { outline: 2px solid #ee8be9; outline-offset: 4px }
+    .container { width: min(var(--content), calc(100% - 48px)); margin-inline: auto }
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid #ffffff0e;
+      background: #0b0910d9;
+      backdrop-filter: blur(18px);
+    }
+    .nav {
+      display: flex;
+      min-height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 720; letter-spacing: -.055em }
+    .brand-mark {
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      border: 1px solid #f48aed63;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #f268e9, #9647da);
+      box-shadow: 0 0 22px #eb45db42;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 750;
+      letter-spacing: -.03em;
+    }
+    .nav-links { display: flex; align-items: center; gap: 30px }
+    .nav-links a, .nav-actions .signin { color: #beb8ca; font-size: 13px; transition: color .18s ease }
+    .nav-links a:hover, .nav-actions .signin:hover { color: #fff }
+    .nav-actions { display: flex; align-items: center; gap: 20px }
+    .button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 10px 17px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: linear-gradient(105deg, #b83fc8, #e852d8);
+      box-shadow: 0 5px 23px #d13cd332;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 650;
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      cursor: pointer;
+    }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 8px 27px #d13cd349; filter: brightness(1.08) }
+    .button.secondary { border-color: var(--line-strong); background: #ffffff06; box-shadow: none; color: #ece7f1 }
+    .button.secondary:hover { border-color: #ffffff42; background: #ffffff0d; box-shadow: none }
+    .button .arrow { font-size: 16px; line-height: 1 }
+    .menu-toggle { display: none; width: 42px; height: 42px; border: 1px solid var(--line-strong); border-radius: 9px; background: #ffffff08; color: white; font-size: 19px }
+    .hero { position: relative; padding: 91px 0 43px; text-align: center }
+    .hero::before {
+      position: absolute;
+      z-index: -1;
+      top: 14px;
+      left: 50%;
+      width: min(840px, 90vw);
+      height: 480px;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, #b52eaa21 0, #7147a20e 42%, transparent 72%);
+      content: "";
+      pointer-events: none;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 6px 11px;
+      border: 1px solid #f263e82e;
+      border-radius: 999px;
+      background: #bd48ae0e;
+      color: #eab9e8;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .035em;
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 10px #f263e8 }
+    h1, h2, h3, p { margin-top: 0 }
+    h1, h2, h3 { font-family: var(--display); text-wrap: balance }
+    .hero h1 {
+      max-width: 900px;
+      margin: 25px auto 17px;
+      font-size: clamp(47px, 7.4vw, 88px);
+      font-weight: 670;
+      letter-spacing: -.073em;
+      line-height: .99;
+    }
+    .gradient-text {
+      display: inline-block;
+      background: linear-gradient(95deg, #fff 2%, #ef8be8 42%, #b98aff 86%);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-copy { max-width: 610px; margin: 0 auto; color: var(--muted); font-size: clamp(15px, 1.65vw, 17px); line-height: 1.75 }
+    .hero-actions { display: flex; justify-content: center; gap: 12px; margin-top: 28px }
+    .hero-footnote { margin: 12px 0 0; color: var(--quiet); font-size: 11px }
+    .preview-wrap { position: relative; width: min(1000px, calc(100% - 48px)); margin: 58px auto 0 }
+    .preview-glow {
+      position: absolute;
+      z-index: -1;
+      inset: 12% 9% -14%;
+      border-radius: 50%;
+      background: #b637b52c;
+      filter: blur(65px);
+    }
+    .preview {
+      overflow: hidden;
+      border: 1px solid #ffffff20;
+      border-radius: 15px;
+      background: #0e0c13;
+      box-shadow: 0 33px 100px #00000073, 0 1px 0 #ffffff0c inset;
+      text-align: left;
+    }
+    .preview-bar {
+      display: flex;
+      min-height: 49px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 17px;
+      border-bottom: 1px solid var(--line);
+      background: #14111a;
+    }
+    .window-dots { display: flex; gap: 6px }
+    .window-dots i { width: 8px; height: 8px; border-radius: 50%; background: #ed6c82 }
+    .window-dots i:nth-child(2) { background: #e6ba69 }
+    .window-dots i:nth-child(3) { background: #73cf99 }
+    .preview-path { color: #9790a1; font: 10px/1.4 Consolas, monospace }
+    .preview-user { color: #beb6c7; font-size: 10px }
+    .preview-layout { display: grid; min-height: 325px; grid-template-columns: 198px minmax(0, 1fr) }
+    .preview-rail { padding: 17px 13px; border-right: 1px solid var(--line); background: #100e15 }
+    .rail-caption { margin: 0 0 12px 8px; color: #716b7a; font-size: 9px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase }
+    .rail-item { display: flex; align-items: center; gap: 9px; margin-bottom: 5px; padding: 8px; border-radius: 7px; color: #aaa3b4; font-size: 10px }
+    .rail-item.active { background: #a834a525; color: #f5d2f1 }
+    .rail-icon { display: grid; width: 17px; place-items: center; color: #c481d0 }
+    .preview-content { min-width: 0; padding: 20px 22px }
+    .preview-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 17px }
+    .preview-heading h2 { margin: 0; font-size: 16px; font-weight: 640; letter-spacing: -.035em }
+    .preview-heading p { margin: 4px 0 0; color: #898292; font-size: 10px }
+    .mini-button { padding: 6px 9px; border: 1px solid #633b68; border-radius: 6px; background: #5324552b; color: #efb6ec; font-size: 9px; white-space: nowrap }
+    .preview-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 13px }
+    .preview-stat { padding: 11px 12px; border: 1px solid #ffffff12; border-radius: 8px; background: #17141d }
+    .preview-stat span { display: block; color: #9891a1; font-size: 9px }
+    .preview-stat strong { display: block; margin-top: 5px; font-family: var(--display); font-size: 21px; font-weight: 650; letter-spacing: -.04em }
+    .preview-stat small { color: #78d5a5; font-size: 9px }
+    .preview-bottom { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(160px, .75fr); gap: 11px }
+    .preview-panel { min-width: 0; padding: 12px; border: 1px solid #ffffff12; border-radius: 8px; background: #15121b }
+    .panel-title { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-bottom: 10px; color: #e2dce8; font-size: 10px; font-weight: 620 }
+    .panel-title span { color: #908999; font-size: 9px; font-weight: 400 }
+    .source-row { display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; padding: 8px 0; border-top: 1px solid #ffffff0c }
+    .source-row strong { overflow: hidden; color: #d7d1df; font-size: 9px; font-weight: 560; text-overflow: ellipsis; white-space: nowrap }
+    .source-row small { grid-column: 1; color: #827b8c; font-size: 8px }
+    .status-tag { align-self: center; padding: 3px 6px; border-radius: 999px; background: #3a2a19; color: #f0c47b; font-size: 8px; white-space: nowrap }
+    .status-tag.green { background: #1e3429; color: #8cdeb0 }
+    .impact-row { display: flex; gap: 8px; padding: 9px; border: 1px solid #ffffff0d; border-radius: 6px; background: #100e15 }
+    .impact-symbol { display: grid; width: 23px; height: 23px; flex: 0 0 auto; place-items: center; border-radius: 6px; background: #3c2342; color: #ed8be5; font-size: 10px }
+    .impact-copy strong { display: block; color: #ded8e5; font-size: 9px; font-weight: 600 }
+    .impact-copy small { display: block; margin-top: 4px; color: #8d8597; font: 8px/1.4 Consolas, monospace }
+    .trust-row { display: flex; align-items: center; justify-content: center; gap: clamp(18px, 5vw, 62px); flex-wrap: wrap; padding: 44px 20px 58px }
+    .trust-label { width: 100%; color: #746d7c; font-size: 10px; letter-spacing: .1em; text-align: center; text-transform: uppercase }
+    .trust-item { display: inline-flex; align-items: center; gap: 8px; color: #aaa3b2; font-size: 12px; font-weight: 590 }
+    .trust-icon { color: #cb82d0; font-size: 14px }
+    .section { padding: 98px 0 }
+    .section.border-top { border-top: 1px solid #ffffff0e }
+    .section-head { max-width: 680px; margin: 0 auto 43px; text-align: center }
+    .section-kicker { margin-bottom: 10px; color: #e185dc; font-size: 10px; font-weight: 650; letter-spacing: .15em; text-transform: uppercase }
+    .section-head h2 { margin: 0; font-size: clamp(34px, 4.7vw, 53px); font-weight: 630; letter-spacing: -.06em; line-height: 1.08 }
+    .section-head p { max-width: 550px; margin: 14px auto 0; color: var(--muted); font-size: 14px }
+    .feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
+    .feature-card {
+      position: relative;
+      min-height: 220px;
+      overflow: hidden;
+      padding: 22px 23px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(145deg, #17141f, #100e16);
+      transition: transform .2s ease, border-color .2s ease;
+    }
+    .feature-card:hover { transform: translateY(-3px); border-color: #e35adb4d }
+    .feature-icon { display: grid; width: 37px; height: 37px; place-items: center; border: 1px solid #db62d036; border-radius: 10px; background: #a73caf20; color: #ec8ae5; font-size: 16px }
+    .feature-card h3 { margin: 19px 0 7px; font-size: 17px; font-weight: 640; letter-spacing: -.03em }
+    .feature-card p { max-width: 450px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75 }
+    .feature-number { position: absolute; top: 20px; right: 21px; color: #686174; font: 10px Consolas, monospace }
+    .workflow-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+    .workflow-card { position: relative; padding: 21px; border: 1px solid var(--line); border-radius: 11px; background: #111019 }
+    .workflow-card:not(:last-child)::after { position: absolute; top: 36px; right: -15px; z-index: 1; width: 15px; border-top: 1px dashed #7b5b80; content: "" }
+    .step-number { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid #754476; border-radius: 8px; background: #3a2340; color: #f1b3ed; font-size: 11px; font-weight: 650 }
+    .workflow-card h3 { margin: 18px 0 7px; font-size: 15px; font-weight: 640; letter-spacing: -.025em }
+    .workflow-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7 }
+    .developer-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, .92fr);
+      gap: 40px;
+      align-items: center;
+      padding: clamp(24px, 5vw, 50px);
+      border: 1px solid #ffffff17;
+      border-radius: 17px;
+      background:
+        radial-gradient(ellipse at 87% 25%, #8d3e8524 0, transparent 40%),
+        linear-gradient(140deg, #17141f, #100e16);
+    }
+    .developer-copy .section-kicker { margin-bottom: 12px }
+    .developer-copy h2 { max-width: 490px; margin: 0 0 14px; font-size: clamp(31px, 4vw, 43px); font-weight: 630; letter-spacing: -.055em; line-height: 1.08 }
+    .developer-copy p { max-width: 490px; margin: 0; color: var(--muted); font-size: 13px }
+    .developer-list { display: grid; gap: 10px; margin: 20px 0 24px; padding: 0; list-style: none }
+    .developer-list li { display: flex; align-items: flex-start; gap: 9px; color: #d2ccda; font-size: 12px }
+    .check { color: var(--green) }
+    .code-card { overflow: hidden; border: 1px solid #ffffff1a; border-radius: 11px; background: #0d0b12; box-shadow: 0 18px 50px #00000040 }
+    .code-head { display: flex; align-items: center; justify-content: space-between; padding: 11px 13px; border-bottom: 1px solid #ffffff12; color: #a9a2b1; font-size: 10px }
+    .code-content { padding: 17px; color: #cfc8d7; font: 11px/1.9 Consolas, "Cascadia Code", monospace }
+    .code-line { display: flex; gap: 14px; white-space: pre-wrap }
+    .line-no { width: 15px; flex: 0 0 auto; color: #686172; text-align: right }
+    .code-key { color: #cf98ef }
+    .code-string { color: #9bd9ab }
+    .code-comment { color: #81788b }
+    .code-highlight { margin: 5px -5px; padding: 3px 5px; border: 1px solid #77447663; border-radius: 5px; background: #46234835 }
+    .callout {
+      position: absolute;
+      right: -11px;
+      bottom: 43px;
+      padding: 9px 11px;
+      border: 1px solid #533a5a;
+      border-radius: 7px;
+      background: #1b1421;
+      box-shadow: 0 10px 28px #00000055;
+      color: #e5b3e4;
+      font: 9px/1.4 Consolas, monospace;
+    }
+    .cta { padding: 92px 0 100px; text-align: center }
+    .cta-inner {
+      position: relative;
+      overflow: hidden;
+      padding: 57px 22px;
+      border: 1px solid #e466dc2e;
+      border-radius: 16px;
+      background: radial-gradient(ellipse at 50% 120%, #b836a72d, transparent 62%), linear-gradient(145deg, #17121e, #100d16);
+    }
+    .cta-inner h2 { max-width: 720px; margin: 0 auto 13px; font-size: clamp(34px, 5vw, 53px); font-weight: 630; letter-spacing: -.06em; line-height: 1.08 }
+    .cta-inner p { max-width: 520px; margin: 0 auto; color: var(--muted); font-size: 13px }
+    .cta-actions { display: flex; justify-content: center; gap: 11px; margin-top: 23px }
+    .footer { border-top: 1px solid #ffffff12; background: #0b0910 }
+    .footer-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; padding: 39px 0 31px }
+    .footer-brand { max-width: 270px }
+    .footer-brand p { margin: 12px 0 0; color: var(--quiet); font-size: 11px }
+    .footer-links { display: flex; gap: clamp(35px, 7vw, 90px) }
+    .footer-col { display: grid; align-content: start; gap: 8px }
+    .footer-col strong { margin-bottom: 3px; color: #eee9f2; font-size: 11px; font-weight: 620 }
+    .footer-col a { color: var(--quiet); font-size: 11px }
+    .footer-col a:hover { color: #fff }
+    .footer-bottom { display: flex; justify-content: space-between; gap: 15px; padding: 15px 0 19px; border-top: 1px solid #ffffff0e; color: #716a7c; font-size: 10px }
+    @media (max-width: 780px) {
+      .container { width: min(var(--content), calc(100% - 34px)) }
+      .nav { min-height: 64px }
+      .nav-links { gap: 18px }
+      .nav-links a { font-size: 12px }
+      .nav-actions .signin { display: none }
+      .hero { padding-top: 74px }
+      .preview-layout { grid-template-columns: 155px minmax(0, 1fr) }
+      .preview-rail { padding-inline: 9px }
+      .preview-content { padding: 17px 14px }
+      .preview-bottom { grid-template-columns: 1fr }
+      .preview-impact { display: none }
+      .section { padding: 78px 0 }
+      .developer-panel { grid-template-columns: 1fr; gap: 28px }
+    }
+    @media (max-width: 560px) {
+      .container { width: calc(100% - 30px) }
+      .nav { flex-wrap: wrap; gap: 12px }
+      .brand { font-size: 18px }
+      .brand-mark { width: 29px; height: 29px }
+      .nav-actions { gap: 0 }
+      .nav-actions .button { min-height: 38px; padding: 7px 11px; font-size: 11px }
+      .nav-links {
+        display: none;
+        width: 100%;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0;
+        padding: 3px 0 12px;
+      }
+      .nav-links.open { display: flex }
+      .nav-links a { padding: 9px 2px; font-size: 13px }
+      .menu-toggle { display: inline-grid; place-items: center; margin-left: auto }
+      .nav > .nav-actions { order: 2 }
+      .nav > .menu-toggle { order: 1 }
+      .nav-links { order: 3 }
+      .hero { padding: 61px 0 28px }
+      .hero h1 { margin-top: 22px; font-size: clamp(45px, 13vw, 65px); letter-spacing: -.07em }
+      .hero-copy { font-size: 14px }
+      .hero-actions, .cta-actions { align-items: stretch; flex-direction: column; width: min(100%, 290px); margin-inline: auto }
+      .hero-actions { margin-top: 23px }
+      .hero-footnote { max-width: 270px; margin-inline: auto; line-height: 1.5 }
+      .preview-wrap { width: calc(100% - 20px); margin-top: 37px }
+      .preview-layout { grid-template-columns: 1fr; min-height: auto }
+      .preview-rail { display: none }
+      .preview-bar { min-height: 42px; padding-inline: 12px }
+      .preview-path { font-size: 9px }
+      .preview-user { display: none }
+      .preview-content { padding: 15px 12px }
+      .preview-stats { gap: 6px }
+      .preview-stat { padding: 9px 8px }
+      .preview-stat strong { font-size: 18px }
+      .preview-stat span { min-height: 26px; font-size: 8px }
+      .preview-stat small { font-size: 8px }
+      .preview-heading h2 { font-size: 14px }
+      .preview-heading p { font-size: 9px }
+      .mini-button { font-size: 8px }
+      .trust-row { gap: 17px 25px; padding: 38px 8px 47px }
+      .trust-label { font-size: 9px }
+      .trust-item { font-size: 10px }
+      .section { padding: 66px 0 }
+      .section-head { margin-bottom: 28px }
+      .section-head h2 { font-size: 36px }
+      .section-head p { font-size: 13px }
+      .feature-grid, .workflow-grid { grid-template-columns: 1fr }
+      .feature-card { min-height: 0; padding: 19px }
+      .feature-card h3 { margin-top: 15px }
+      .workflow-card { padding: 18px }
+      .workflow-card:not(:last-child)::after { display: none }
+      .developer-panel { padding: 23px 17px }
+      .developer-copy h2 { font-size: 35px }
+      .code-content { padding: 12px 9px; font-size: 9px }
+      .callout { right: 5px; bottom: 23px; font-size: 8px }
+      .cta { padding: 62px 0 68px }
+      .cta-inner { padding: 41px 17px }
+      .cta-inner h2 { font-size: 37px }
+      .footer-top { flex-direction: column; gap: 25px }
+      .footer-links { justify-content: space-between; gap: 19px; width: 100% }
+      .footer-bottom { flex-direction: column; gap: 4px }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="Mitro home"><span class="brand-mark" aria-hidden="true">M</span><span>mitro<span class="gradient-text">.</span></span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu">☰</button>
+      <div class="nav-links" id="nav-links">
+        <a href="#features">Platform</a>
+        <a href="#workflow">How it works</a>
+        <a href="#developers">For engineers</a>
+      </div>
+      <div class="nav-actions">
+        <a class="signin" href="ui-overview.html">Open workspace</a>
+        <a class="button" href="#product">Explore Mitro <span class="arrow" aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container" id="home" aria-labelledby="hero-title">
+      <span class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Regulatory intelligence for engineering teams</span>
+      <h1 id="hero-title">Turn regulation into<br><span class="gradient-text">reviewable action.</span></h1>
+      <p class="hero-copy">Connect the source, the clause, and the code in one clear workflow. Give your team the context to assess potential impact—without automating legal judgment.</p>
+      <div class="hero-actions">
+        <a class="button" href="ui-overview.html">Explore the workspace <span class="arrow" aria-hidden="true">↗</span></a>
+        <a class="button secondary" href="#workflow">See how it works <span class="arrow" aria-hidden="true">↓</span></a>
+      </div>
+      <p class="hero-footnote">Local demo · Synthetic Lendwise codebase · Human review stays in control</p>
+
+      <div class="preview-wrap" id="product" aria-label="Illustrative Mitro workspace preview">
+        <div class="preview-glow" aria-hidden="true"></div>
+        <div class="preview">
+          <div class="preview-bar">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <span class="preview-path">mitro.local / review-workspace</span>
+            <span class="preview-user">Lendwise · Demo</span>
+          </div>
+          <div class="preview-layout">
+            <aside class="preview-rail" aria-label="Preview navigation">
+              <p class="rail-caption">Workspace</p>
+              <div class="rail-item"><span class="rail-icon" aria-hidden="true">◫</span>Overview</div>
+              <div class="rail-item active"><span class="rail-icon" aria-hidden="true">▤</span>Regulations</div>
+              <div class="rail-item"><span class="rail-icon" aria-hidden="true">≡</span>Clause review</div>
+              <div class="rail-item"><span class="rail-icon" aria-hidden="true">⌘</span>Code impact</div>
+              <div class="rail-item"><span class="rail-icon" aria-hidden="true">✓</span>Approvals</div>
+            </aside>
+            <div class="preview-content">
+              <div class="preview-heading">
+                <div><h2>Regulatory review</h2><p>Source evidence, human assessment, engineering context.</p></div>
+                <span class="mini-button">+ Add source</span>
+              </div>
+              <div class="preview-stats">
+                <div class="preview-stat"><span>Tracked documents</span><strong>12</strong><small>Source library</small></div>
+                <div class="preview-stat"><span>Clauses to review</span><strong>08</strong><small>Across 3 sources</small></div>
+                <div class="preview-stat"><span>Impact leads</span><strong>05</strong><small>Human review needed</small></div>
+              </div>
+              <div class="preview-bottom">
+                <section class="preview-panel" aria-label="Recently updated sources preview">
+                  <div class="panel-title">Recently updated sources <span>View all →</span></div>
+                  <div class="source-row"><strong>Digital Lending Directions</strong><span class="status-tag">Needs review</span><small>RBI · Paragraph 10.1 · Source retained</small></div>
+                  <div class="source-row"><strong>Digital Personal Data Protection Rules</strong><span class="status-tag">New version</span><small>MeitY · 2 versions · Compare available</small></div>
+                  <div class="source-row"><strong>IRACP Amendment Directions</strong><span class="status-tag green">Reviewed</span><small>RBI · Paragraph 36C · SHA-256 verified</small></div>
+                </section>
+                <section class="preview-panel preview-impact" aria-label="Engineering impact preview">
+                  <div class="panel-title">Engineering impact <span>Candidate</span></div>
+                  <div class="impact-row">
+                    <span class="impact-symbol" aria-hidden="true">⌘</span>
+                    <span class="impact-copy"><strong>Potential code location</strong><small>app/services/provisioning.py</small></span>
+                  </div>
+                  <p style="margin:10px 0 0;color:#918999;font-size:9px;line-height:1.55">A review lead with a traceable source—not a compliance conclusion.</p>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-row container" aria-label="Supported source types">
+      <span class="trust-label">Designed around the evidence your reviewers need</span>
+      <span class="trust-item"><span class="trust-icon" aria-hidden="true">◉</span>RBI sources</span>
+      <span class="trust-item"><span class="trust-icon" aria-hidden="true">◈</span>MeitY publications</span>
+      <span class="trust-item"><span class="trust-icon" aria-hidden="true">▧</span>e-Gazette notices</span>
+      <span class="trust-item"><span class="trust-icon" aria-hidden="true">⌘</span>Engineering context</span>
+    </section>
+
+    <section class="section border-top" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-kicker">A connected review workspace</p>
+          <h2 id="features-title">Every decision starts<br>with the <span class="gradient-text">source.</span></h2>
+          <p>Keep regulatory evidence and potential implementation impact connected, so reviewers can make informed decisions at every step.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card"><span class="feature-number">01 / SOURCES</span><span class="feature-icon" aria-hidden="true">▤</span><h3>Traceable source library</h3><p>Keep document versions, official references, retained copies, and content hashes together for a clear provenance trail.</p></article>
+          <article class="feature-card"><span class="feature-number">02 / CLAUSES</span><span class="feature-icon" aria-hidden="true">≡</span><h3>Clause-level review</h3><p>Inspect extracted wording alongside its source. Proposed obligations stay reviewable until a named person approves them.</p></article>
+          <article class="feature-card"><span class="feature-number">03 / ENGINEERING</span><span class="feature-icon" aria-hidden="true">⌘</span><h3>Explainable code leads</h3><p>Explore candidate files and the reason they surfaced. Treat every match as a prompt for investigation, not a finding.</p></article>
+          <article class="feature-card"><span class="feature-number">04 / CHANGE REVIEW</span><span class="feature-icon" aria-hidden="true">⌁</span><h3>Isolated change proposals</h3><p>For supported demo cases, preview a suggested diff and test it in a separate copy—never by overwriting the original.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section border-top" id="workflow" aria-labelledby="workflow-title">
+      <div class="container">
+        <div class="section-head">
+          <p class="section-kicker">A reviewable path from text to code</p>
+          <h2 id="workflow-title">Clarity at<br><span class="gradient-text">every step.</span></h2>
+          <p>Mitro supports a practical human-led workflow, from the original publication through engineering exploration.</p>
+        </div>
+        <div class="workflow-grid">
+          <article class="workflow-card"><span class="step-number">01</span><h3>Capture the source</h3><p>Upload an included document or check an allow-listed official source. Keep its version and provenance visible.</p></article>
+          <article class="workflow-card"><span class="step-number">02</span><h3>Review the wording</h3><p>Inspect extracted clauses, compare versions, and document a proposed obligation for qualified human approval.</p></article>
+          <article class="workflow-card"><span class="step-number">03</span><h3>Explore potential impact</h3><p>Scan the synthetic repository for review leads. Inspect supported proposals in an isolated copy with regression checks.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section border-top" id="developers" aria-labelledby="developer-title">
+      <div class="container">
+        <div class="developer-panel">
+          <div class="developer-copy">
+            <p class="section-kicker">Built for engineering teams</p>
+            <h2 id="developer-title">Useful context.<br>No surprise edits.</h2>
+            <p>Mitro helps connect obligations under review to code worth inspecting, while keeping the source project read-only in the demo.</p>
+            <ul class="developer-list">
+              <li><span class="check" aria-hidden="true">✓</span>Candidate matches with repository context</li>
+              <li><span class="check" aria-hidden="true">✓</span>Patch previews before any separate-copy build</li>
+              <li><span class="check" aria-hidden="true">✓</span>Generated regression checks in an isolated copy</li>
+            </ul>
+            <a class="button" href="ui-overview.html">View the workspace <span class="arrow" aria-hidden="true">↗</span></a>
+          </div>
+          <div class="code-card" aria-label="Illustrative source-to-code review card">
+            <div class="code-head"><span>Review lead · RBI paragraph 36C</span><span class="status-tag">Candidate</span></div>
+            <div class="code-content">
+              <div class="code-line"><span class="line-no">01</span><span class="code-comment"># Review context — not a compliance conclusion</span></div>
+              <div class="code-line"><span class="line-no">02</span><span><span class="code-key">source</span> = <span class="code-string">"RBI IRACP Amendment"</span></span></div>
+              <div class="code-line"><span class="line-no">03</span><span><span class="code-key">clause</span> = <span class="code-string">"paragraph 36C"</span></span></div>
+              <div class="code-line"><span class="line-no">04</span><span><span class="code-key">review_status</span> = <span class="code-string">"proposed"</span></span></div>
+              <div class="code-line code-highlight"><span class="line-no">05</span><span><span class="code-key">candidate</span> = <span class="code-string">"app/services/provisioning.py"</span></span></div>
+              <div class="code-line"><span class="line-no">06</span><span><span class="code-key">next_step</span> = <span class="code-string">"qualified human review"</span></span></div>
+              <div class="code-line"><span class="line-no">07</span><span class="code-comment"># Original repository remains unchanged</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <div class="cta-inner">
+          <p class="section-kicker">Start with the evidence</p>
+          <h2>Make the next review<br><span class="gradient-text">easier to follow.</span></h2>
+          <p>Explore the local Mitro concept using its supplied regulatory corpus and synthetic Lendwise repository.</p>
+          <div class="cta-actions">
+            <a class="button" href="ui-overview.html">Explore the workspace <span class="arrow" aria-hidden="true">↗</span></a>
+            <a class="button secondary" href="#features">Explore the platform</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">M</span><span>mitro<span class="gradient-text">.</span></span></a>
+          <p>Regulatory intelligence and engineering impact—with human review at the center.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col"><strong>Explore</strong><a href="#features">Platform</a><a href="#workflow">How it works</a><a href="#developers">For engineers</a></div>
+          <div class="footer-col"><strong>Workspace</strong><a href="ui-overview.html">UI concept</a><a href="#product">Product preview</a></div>
+        </div>
+      </div>
+      <div class="footer-bottom"><span>Mitro local demo · Synthetic data only</span><span>Review leads are not legal advice or compliance findings.</span></div>
+    </div>
+  </footer>
+  <script>
+    const menuButton = document.querySelector(".menu-toggle");
+    const navLinks = document.querySelector(".nav-links");
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = menuButton.getAttribute("aria-expanded") === "true";
+      menuButton.setAttribute("aria-expanded", String(!isOpen));
+      menuButton.setAttribute("aria-label", isOpen ? "Open menu" : "Close menu");
+      navLinks.classList.toggle("open", !isOpen);
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open menu");
+        navLinks.classList.remove("open");
+      });
+    });
+  </script>
+</body>
+</html>

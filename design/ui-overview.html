@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f5">
+  <title>Mitro | UI overview concept</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2925;
+      --muted: #78827d;
+      --green: #237b58;
+      --green-dark: #193d30;
+      --green-soft: #e8f2ec;
+      --line: #e8ebe8;
+      --surface: #fff;
+      --page: #f6f7f5;
+      --amber: #a76b16;
+      --amber-soft: #fbf2df;
+      --blue: #426c99;
+      --blue-soft: #eaf0f7;
+      --shadow: 0 12px 35px #18251e0b;
+    }
+    * { box-sizing: border-box }
+    body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.5 Inter, "Segoe UI", Arial, sans-serif }
+    button { font: inherit }
+    .app { display: grid; grid-template-columns: 226px minmax(0, 1fr); min-height: 100vh }
+    .sidebar { display: flex; flex-direction: column; padding: 25px 16px 18px; background: var(--green-dark); color: #fff }
+    .brand { display: flex; align-items: center; gap: 10px; padding: 0 10px; font-size: 19px; font-weight: 750; letter-spacing: -.5px }
+    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #d7eddf; color: var(--green-dark); font-size: 16px }
+    .workspace-label { margin: 31px 10px 9px; color: #9db8aa; font-size: 10px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase }
+    .nav { display: grid; gap: 4px }
+    .nav button { display: flex; align-items: center; gap: 11px; width: 100%; padding: 10px 11px; border: 0; border-radius: 8px; background: transparent; color: #d4e2d9; text-align: left; cursor: pointer }
+    .nav button:hover { background: #ffffff10; color: #fff }
+    .nav button[aria-current="page"] { background: #ffffff17; color: #fff; font-weight: 650 }
+    .nav-icon { display: grid; width: 20px; place-items: center; color: #a8c9b6; font-size: 15px }
+    .sidebar-bottom { margin-top: auto; padding: 15px 10px 2px; border-top: 1px solid #ffffff20; color: #b7cfc1; font-size: 12px }
+    .local-dot { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #70d09a }
+    .main { min-width: 0 }
+    .topbar { display: flex; align-items: center; justify-content: space-between; min-height: 68px; padding: 0 clamp(20px, 4vw, 52px); border-bottom: 1px solid var(--line); background: #ffffffd9 }
+    .crumb { color: var(--muted); font-size: 13px }
+    .crumb strong { color: var(--ink); font-weight: 600 }
+    .profile { display: flex; align-items: center; gap: 10px; color: #58645e; font-size: 12px }
+    .avatar { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid #e3e7e4; border-radius: 50%; background: #f0f3f0; color: #456453; font-weight: 700 }
+    .content { width: min(1200px, 100%); margin: 0 auto; padding: 34px clamp(20px, 4vw, 52px) 55px }
+    .page { display: none }
+    .page.active { display: block }
+    .eyebrow { margin: 0 0 7px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: 1.2px; text-transform: uppercase }
+    h1 { margin: 0; font-size: clamp(24px, 3vw, 31px); letter-spacing: -.8px; line-height: 1.2 }
+    .subtitle { margin: 8px 0 0; color: var(--muted); font-size: 14px }
+    .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; margin-bottom: 25px }
+    .button { display: inline-flex; min-height: 39px; align-items: center; justify-content: center; gap: 8px; padding: 8px 13px; border: 1px solid var(--green); border-radius: 8px; background: var(--green); color: #fff; font-weight: 650; cursor: pointer }
+    .button:hover { background: #1d694b }
+    .button.secondary { border-color: #dfe5e0; background: #fff; color: #394840 }
+    .button.secondary:hover { background: #f5f7f5 }
+    .button:focus-visible, .nav button:focus-visible { outline: 3px solid #7db6e8; outline-offset: 2px }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px }
+    .card { min-width: 0; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); box-shadow: var(--shadow) }
+    .metric { padding: 17px 18px }
+    .metric-top { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px }
+    .metric-icon { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 8px; background: var(--green-soft); color: var(--green); font-size: 14px }
+    .metric-value { margin-top: 12px; font-size: 26px; font-weight: 700; letter-spacing: -.7px; line-height: 1.1 }
+    .metric-note { margin-top: 6px; color: var(--muted); font-size: 11px }
+    .delta { color: var(--green); font-weight: 650 }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(260px, .85fr); gap: 16px; margin-bottom: 16px }
+    .card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 17px 19px 13px }
+    h2 { margin: 0; font-size: 15px; letter-spacing: -.2px }
+    .card-caption { margin: 4px 0 0; color: var(--muted); font-size: 11px }
+    .text-link { border: 0; background: transparent; color: var(--green); font-size: 12px; font-weight: 650; cursor: pointer }
+    .text-link:hover { text-decoration: underline }
+    .table-wrap { overflow-x: auto }
+    table { width: 100%; border-collapse: collapse; text-align: left }
+    th { padding: 9px 18px; border-top: 1px solid #f0f1f0; border-bottom: 1px solid #f0f1f0; background: #fbfcfb; color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .45px; text-transform: uppercase; white-space: nowrap }
+    td { padding: 12px 18px; border-bottom: 1px solid #f0f1f0; vertical-align: middle; font-size: 12px }
+    tbody tr:last-child td { border-bottom: 0 }
+    .source-title { display: block; max-width: 320px; overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap }
+    .source-sub { display: block; margin-top: 3px; color: var(--muted); font-size: 10px }
+    .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 30px; background: var(--green-soft); color: #276344; font-size: 10px; font-weight: 650; white-space: nowrap }
+    .pill.amber { background: var(--amber-soft); color: #8e5c15 }
+    .pill.blue { background: var(--blue-soft); color: #41668e }
+    .timeline { padding: 0 19px 15px }
+    .event { position: relative; display: grid; grid-template-columns: 22px 1fr; gap: 10px; padding: 12px 0 }
+    .event + .event { border-top: 1px solid #f0f1f0 }
+    .event-mark { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid #dce8df; border-radius: 50%; background: #f4f8f5; color: var(--green); font-size: 10px }
+    .event-title { font-size: 11px; font-weight: 650 }
+    .event-meta { margin-top: 3px; color: var(--muted); font-size: 10px }
+    .workflow-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px }
+    .workflow { padding: 17px 18px }
+    .workflow-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px }
+    .workflow-number { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 8px; background: var(--green-soft); color: var(--green); font-size: 12px; font-weight: 750 }
+    .workflow h3 { margin: 0; font-size: 13px }
+    .workflow p { min-height: 36px; margin: 6px 0 13px; color: var(--muted); font-size: 11px }
+    .workflow .text-link { padding: 0 }
+    .note { margin-top: 17px; padding: 12px 14px; border: 1px solid #ece8d9; border-radius: 8px; background: #fcfaf4; color: #74694e; font-size: 11px }
+    .doc-list { display: grid; gap: 12px }
+    .document-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 17px }
+    .doc-main { display: flex; min-width: 0; align-items: center; gap: 13px }
+    .doc-icon { display: grid; width: 38px; height: 42px; flex: 0 0 auto; place-items: center; border: 1px solid #e4e9e5; border-radius: 7px; background: #f7faf7; color: var(--green); font-size: 10px; font-weight: 750 }
+    .doc-info { min-width: 0 }
+    .doc-info strong { display: block; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap }
+    .doc-info span { display: block; margin-top: 4px; color: var(--muted); font-size: 10px }
+    .doc-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 15px }
+    .impact-banner { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 15px; padding: 14px 17px; border: 1px solid #dce9df; border-radius: 9px; background: #f4f9f5 }
+    .impact-banner strong { font-size: 12px }
+    .impact-banner p { margin: 3px 0 0; color: var(--muted); font-size: 11px }
+    .finding { padding: 17px 19px }
+    .finding + .finding { border-top: 1px solid var(--line) }
+    .finding-top { display: flex; align-items: center; justify-content: space-between; gap: 12px }
+    .finding-title { font-size: 12px; font-weight: 700 }
+    .finding-desc { margin: 7px 0 10px; color: var(--muted); font-size: 11px }
+    .file { display: inline-flex; padding: 4px 7px; border: 1px solid #e7eae8; border-radius: 5px; background: #f8f9f8; color: #45554b; font: 10px Consolas, monospace }
+    .finding-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px }
+    .confidence { color: var(--muted); font-size: 10px }
+    .footer-note { margin-top: 20px; color: #8b948f; font-size: 10px; text-align: center }
+    @media (max-width: 950px) {
+      .app { grid-template-columns: 190px minmax(0, 1fr) }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+      .content-grid { grid-template-columns: 1fr }
+    }
+    @media (max-width: 640px) {
+      .app { grid-template-columns: 1fr }
+      .sidebar { padding: 12px 14px }
+      .brand { padding: 0 4px }
+      .workspace-label, .sidebar-bottom { display: none }
+      .nav { display: flex; gap: 4px; margin-top: 12px; overflow-x: auto }
+      .nav button { width: auto; flex: 0 0 auto; padding: 8px 10px; font-size: 11px }
+      .nav-icon { display: none }
+      .topbar { min-height: 52px; padding: 0 17px }
+      .content { padding: 25px 15px 38px }
+      .page-heading { flex-direction: column; align-items: stretch }
+      .page-heading .button { align-self: flex-start }
+      .metric-grid { gap: 9px }
+      .metric { padding: 13px }
+      .metric-value { font-size: 23px }
+      .workflow-grid { grid-template-columns: 1fr }
+      .workflow p { min-height: 0 }
+      .document-row { align-items: flex-start; flex-direction: column }
+      .doc-actions { width: 100%; justify-content: space-between }
+      .impact-banner { align-items: flex-start; flex-direction: column }
+      th, td { padding-right: 12px; padding-left: 12px }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important } }
+    :root {
+      color-scheme: dark;
+      --ink: #f0edf5;
+      --muted: #9c96a8;
+      --green: #ed49e8;
+      --green-dark: #0c0a12;
+      --green-soft: #321b37;
+      --line: #292431;
+      --surface: #15121c;
+      --page: #0d0b12;
+      --amber: #e9b55e;
+      --amber-soft: #392b1b;
+      --blue: #9c8cff;
+      --blue-soft: #26203b;
+      --shadow: 0 14px 40px #00000029;
+    }
+    body {
+      background: radial-gradient(ellipse at 2% 20%, #7a287433 0, transparent 26%), var(--page);
+      color: var(--ink);
+    }
+    .sidebar {
+      background: linear-gradient(180deg, #121019 0%, #0b0910 100%);
+      border-right: 1px solid #211b29;
+    }
+    .brand-mark { background: linear-gradient(145deg, #ff65eb, #9f36ed); color: #fff }
+    .workspace-label { color: #898196 }
+    .nav button { color: #a7a0b0 }
+    .nav button:hover { background: #ffffff0b; color: #fff }
+    .nav button[aria-current="page"] {
+      background: linear-gradient(100deg, #a62cc1, #ed38df);
+      box-shadow: 0 5px 22px #db31d54d;
+      color: #fff;
+    }
+    .nav-icon { color: #c9a0d4 }
+    .sidebar-bottom { border-color: #292431; color: #aaa1b1 }
+    .topbar { border-color: var(--line); background: #100e16e8 }
+    .crumb strong, .profile { color: #ded8e5 }
+    .avatar { border-color: #3a3342; background: #211b2a; color: #f5dafa }
+    .eyebrow { color: #e96fe7 }
+    .subtitle, .metric-note, .card-caption, .event-meta, .workflow p,
+    .doc-info span, .finding-desc, .confidence, .footer-note { color: var(--muted) }
+    .button {
+      border-color: #e446dc;
+      background: linear-gradient(100deg, #c23bd6, #ee44d5);
+      box-shadow: 0 4px 16px #db31d526;
+      color: #fff;
+    }
+    .button:hover { background: linear-gradient(100deg, #d049e3, #fa55e5) }
+    .button.secondary { border-color: #403747; background: #1b1721; color: #ddd6e6; box-shadow: none }
+    .button.secondary:hover { background: #26202d }
+    .card { border-color: #292431; background: linear-gradient(145deg, #191620, #131119); box-shadow: var(--shadow) }
+    .metric-icon, .workflow-number {
+      border: 1px solid #543255;
+      background: #321b37;
+      color: #ee7ce7;
+    }
+    .delta { color: #69d6a1 }
+    .card-heading { border-color: #292431 }
+    .text-link { color: #ed79e7 }
+    .text-link:hover { color: #ff9cf6 }
+    th { border-color: #292431; background: #17141d; color: #a49bad }
+    td { border-color: #292431; color: #e6e1eb }
+    .source-title, .event-title, .workflow h3, .doc-info strong,
+    .finding-title, .impact-banner strong { color: #f0edf5 }
+    .source-sub, .event-meta { color: #918a9c }
+    .pill { border: 1px solid #34523e; background: #192b22; color: #8fe0af }
+    .pill.amber { border-color: #5a4529; background: #302416; color: #e9bb70 }
+    .pill.blue { border-color: #433762; background: #241e35; color: #b6a9ff }
+    .event-mark, .doc-icon { border-color: #45304b; background: #241a2a; color: #ed78e6 }
+    .note { border-color: #493529; background: #231b18; color: #d3bda0 }
+    .impact-banner { border-color: #423047; background: #1b1521 }
+    .file { border-color: #3a3342; background: #211c28; color: #e0c3e3 }
+    .doc-info span { color: var(--muted) }
+    .profile { color: #b9b1c1 }
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(235px, .75fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .analytics-card { padding: 17px 18px }
+    .analytics-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+    .analytics-title h2 { font-size: 14px }
+    .chart-tabs { display: flex; gap: 3px; padding: 3px; border: 1px solid #302b38; border-radius: 7px; background: #100e15 }
+    .chart-tabs span { padding: 4px 8px; border-radius: 5px; color: #9991a2; font-size: 10px }
+    .chart-tabs .selected { background: #332038; color: #f2a1ed }
+    .chart-layout { display: grid; grid-template-columns: 125px minmax(0, 1fr); gap: 15px; align-items: stretch }
+    .chart-stats { display: grid; gap: 9px }
+    .chart-stat { padding: 10px 11px; border: 1px solid #2b2632; border-radius: 8px; background: #120f17 }
+    .chart-stat span { display: block; color: #aaa2b1; font-size: 10px }
+    .chart-stat strong { display: block; margin-top: 5px; font-size: 21px; letter-spacing: -.5px }
+    .chart-stat small { color: #6ed6a3; font-size: 9px }
+    .bar-chart {
+      display: flex;
+      min-height: 164px;
+      align-items: end;
+      justify-content: space-around;
+      gap: 9px;
+      padding: 13px 10px 0;
+      border: 1px solid #292431;
+      border-radius: 9px;
+      background: repeating-linear-gradient(to top, transparent 0, transparent 39px, #ffffff0b 40px), #110e16;
+    }
+    .bar-column { display: flex; height: 100%; min-width: 14px; flex: 1; flex-direction: column; align-items: center; justify-content: end; gap: 7px }
+    .bar { width: min(23px, 85%); min-height: 9px; border-radius: 5px 5px 1px 1px; background: linear-gradient(180deg, #fb75ec, #a733c7); box-shadow: 0 0 14px #db42d34a }
+    .bar.muted { background: linear-gradient(180deg, #62516d, #352b40); box-shadow: none }
+    .bar-label { padding-bottom: 8px; color: #898194; font-size: 9px }
+    .side-widgets { display: grid; gap: 14px }
+    .widget { padding: 15px 16px }
+    .widget h2 { margin-bottom: 12px; font-size: 13px }
+    .coverage-row { display: grid; grid-template-columns: 1fr auto; gap: 7px 10px; align-items: center; margin-top: 11px; color: #c9c2d0; font-size: 10px }
+    .coverage-row strong { color: #b9b1c1; font-size: 10px; font-weight: 600 }
+    .coverage-track { grid-column: 1 / -1; height: 6px; overflow: hidden; border-radius: 8px; background: #292431 }
+    .coverage-fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #a832c2, #ed57df) }
+    .review-widget { display: flex; align-items: center; justify-content: space-between; gap: 10px }
+    .review-legend { display: grid; gap: 8px }
+    .legend-row { display: flex; align-items: center; gap: 7px; color: #b9b1c1; font-size: 10px }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; background: #ee60df }
+    .legend-dot.dim { background: #64536d }
+    .legend-dot.amber { background: #dfa94f }
+    .donut {
+      display: grid;
+      width: 80px;
+      height: 80px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+      background: conic-gradient(#ee55dc 0 62%, #9d54d6 62% 79%, #392c43 79% 100%);
+      box-shadow: 0 0 20px #df48d329;
+    }
+    .donut::before { width: 58px; height: 58px; border-radius: 50%; background: #17141d; content: "" }
+    .donut-label { position: absolute; text-align: center; color: #a79eaf; font-size: 8px }
+    .donut-label strong { display: block; color: #f1eaf4; font-size: 15px }
+    .donut-wrap { position: relative; display: grid; place-items: center }
+    body {
+      font-family: "Segoe UI Variable", "Aptos", "Inter", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 400;
+      letter-spacing: .005em;
+      font-feature-settings: "ss01" on;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    h1, h2, h3, .brand, .metric-value, .chart-stat strong {
+      font-family: "Segoe UI Variable Display", "Aptos Display", "Segoe UI Variable", "Inter", system-ui, sans-serif;
+      font-optical-sizing: auto;
+    }
+    h1 {
+      font-size: clamp(27px, 3.2vw, 35px);
+      font-weight: 680;
+      letter-spacing: -.045em;
+      line-height: 1.15;
+    }
+    h2 { font-size: 15px; font-weight: 650; letter-spacing: -.015em }
+    h3 { font-weight: 650; letter-spacing: -.01em }
+    .brand { font-weight: 720; letter-spacing: -.04em }
+    .subtitle { font-size: 14px; line-height: 1.65 }
+    .card-caption { font-size: 12px; line-height: 1.5 }
+    .metric-top, .profile, .crumb, .text-link { font-size: 12px }
+    .source-title, .event-title, .finding-title { font-size: 12px; font-weight: 650 }
+    .source-sub, .event-meta, .doc-info span, .confidence { font-size: 11px }
+    .workflow p, .finding-desc, .impact-banner p { font-size: 12px; line-height: 1.6 }
+    .metric-note { font-size: 11px }
+    .pill { font-size: 10px; font-weight: 650; letter-spacing: .01em }
+    .eyebrow { font-size: 10px; letter-spacing: .13em }
+    @media (max-width: 950px) {
+      .analytics-grid { grid-template-columns: 1fr }
+      .side-widgets { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+    }
+    @media (max-width: 640px) {
+      .chart-layout { grid-template-columns: 1fr }
+      .chart-stats { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+      .bar-chart { min-height: 145px }
+      .side-widgets { grid-template-columns: 1fr }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">M</span> mitro<span style="color:#e8c978">.</span></div>
+      <p class="workspace-label">Workspace</p>
+      <nav class="nav" aria-label="Main navigation">
+        <button type="button" data-page="overview" aria-current="page"><span class="nav-icon" aria-hidden="true">◫</span> Overview</button>
+        <button type="button" data-page="regulations" aria-current="false"><span class="nav-icon" aria-hidden="true">▤</span> Regulations</button>
+        <button type="button" data-page="impact" aria-current="false"><span class="nav-icon" aria-hidden="true">⌘</span> Engineering impact</button>
+      </nav>
+      <div class="sidebar-bottom"><span class="local-dot" aria-hidden="true"></span>Local demo workspace</div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="crumb">Lendwise workspace <span aria-hidden="true">/</span> <strong id="current-section">Overview</strong></div>
+        <div class="profile"><span>Reviewer workspace</span><span class="avatar" aria-hidden="true">R</span></div>
+      </header>
+
+      <main class="content">
+        <section class="page active" id="page-overview" aria-labelledby="overview-title">
+          <div class="page-heading">
+            <div><p class="eyebrow">Workspace overview</p><h1 id="overview-title">Good morning, reviewer</h1><p class="subtitle">A clear view of regulatory updates and the engineering work that may need your attention.</p></div>
+            <button type="button" class="button" data-page="regulations"><span aria-hidden="true">＋</span> Add a regulation</button>
+          </div>
+
+          <div class="analytics-grid" aria-label="Workspace analytics">
+            <section class="card analytics-card" aria-labelledby="activity-chart-title">
+              <div class="analytics-title"><div><h2 id="activity-chart-title">Regulatory activity</h2><p class="card-caption">Source updates and reviews over the last 8 weeks</p></div><div class="chart-tabs" aria-label="Chart period"><span class="selected">Activity</span><span>Reviews</span><span>Sources</span></div></div>
+              <div class="chart-layout">
+                <div class="chart-stats">
+                  <div class="chart-stat"><span>Tracked sources</span><strong>12</strong><small>↗ 2 this month</small></div>
+                  <div class="chart-stat"><span>Reviews complete</span><strong>19</strong><small>↗ 4 this week</small></div>
+                </div>
+                <div class="bar-chart" role="img" aria-label="Illustrative regulatory activity chart for the last eight weeks">
+                  <div class="bar-column"><div class="bar muted" style="height:25%"></div><span class="bar-label">Sep 07</span></div>
+                  <div class="bar-column"><div class="bar muted" style="height:38%"></div><span class="bar-label">Sep 14</span></div>
+                  <div class="bar-column"><div class="bar muted" style="height:31%"></div><span class="bar-label">Sep 21</span></div>
+                  <div class="bar-column"><div class="bar" style="height:54%"></div><span class="bar-label">Sep 28</span></div>
+                  <div class="bar-column"><div class="bar muted" style="height:43%"></div><span class="bar-label">Oct 05</span></div>
+                  <div class="bar-column"><div class="bar" style="height:80%"></div><span class="bar-label">Oct 12</span></div>
+                  <div class="bar-column"><div class="bar muted" style="height:58%"></div><span class="bar-label">Oct 19</span></div>
+                  <div class="bar-column"><div class="bar" style="height:67%"></div><span class="bar-label">Oct 26</span></div>
+                </div>
+              </div>
+            </section>
+            <div class="side-widgets">
+              <section class="card widget" aria-labelledby="coverage-title">
+                <h2 id="coverage-title">Source coverage</h2>
+                <div class="coverage-row"><span>RBI</span><strong>8 sources</strong><div class="coverage-track"><div class="coverage-fill" style="width:76%"></div></div></div>
+                <div class="coverage-row"><span>MeitY</span><strong>3 sources</strong><div class="coverage-track"><div class="coverage-fill" style="width:44%"></div></div></div>
+                <div class="coverage-row"><span>e-Gazette</span><strong>1 source</strong><div class="coverage-track"><div class="coverage-fill" style="width:23%"></div></div></div>
+              </section>
+              <section class="card widget" aria-labelledby="review-status-title">
+                <h2 id="review-status-title">Review status</h2>
+                <div class="review-widget">
+                  <div class="review-legend">
+                    <span class="legend-row"><i class="legend-dot"></i>Reviewed <strong>62%</strong></span>
+                    <span class="legend-row"><i class="legend-dot amber"></i>In review <strong>17%</strong></span>
+                    <span class="legend-row"><i class="legend-dot dim"></i>Not started <strong>21%</strong></span>
+                  </div>
+                  <div class="donut-wrap"><div class="donut" role="img" aria-label="62 percent reviewed"></div><div class="donut-label"><strong>62%</strong>reviewed</div></div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="content-grid">
+            <section class="card" aria-labelledby="recent-title">
+              <div class="card-heading"><div><h2 id="recent-title">Recently updated sources</h2><p class="card-caption">Latest activity across your regulatory library</p></div><button class="text-link" type="button" data-page="regulations">View library →</button></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Source document</th><th>Last updated</th><th>Review status</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="source-title">Digital Lending Directions</span><span class="source-sub">RBI · RBI/2025-26/42</span></td><td>12 Oct 2026</td><td><span class="pill amber">Needs review</span></td></tr>
+                    <tr><td><span class="source-title">Digital Personal Data Protection Rules</span><span class="source-sub">MeitY · G.S.R. 846(E)</span></td><td>08 Oct 2026</td><td><span class="pill blue">New version</span></td></tr>
+                    <tr><td><span class="source-title">IRACP Amendment Directions</span><span class="source-sub">RBI · DLG provisions</span></td><td>02 Oct 2026</td><td><span class="pill">Reviewed</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card" aria-labelledby="activity-title">
+              <div class="card-heading"><div><h2 id="activity-title">Review activity</h2><p class="card-caption">Recent events in this workspace</p></div><span class="pill">Today</span></div>
+              <div class="timeline">
+                <div class="event"><span class="event-mark" aria-hidden="true">↻</span><div><div class="event-title">Source version detected</div><div class="event-meta">Digital Lending Directions · 24 min ago</div></div></div>
+                <div class="event"><span class="event-mark" aria-hidden="true">✓</span><div><div class="event-title">Clause review completed</div><div class="event-meta">IRACP Amendment · 2 hours ago</div></div></div>
+                <div class="event"><span class="event-mark" aria-hidden="true">⌘</span><div><div class="event-title">Engineering scan finished</div><div class="event-meta">Lendwise repository · Yesterday</div></div></div>
+              </div>
+            </section>
+          </div>
+
+          <section aria-labelledby="workflow-title">
+            <div class="card-heading" style="padding-left:0"><div><h2 id="workflow-title">Your review workflow</h2><p class="card-caption">Move from source text to a reviewable engineering proposal</p></div></div>
+            <div class="workflow-grid">
+              <article class="card workflow"><div class="workflow-top"><span class="workflow-number">01</span><span class="pill amber">2 updates</span></div><h3>Review source documents</h3><p>Check new versions and retain the evidence behind every source.</p><button class="text-link" type="button" data-page="regulations">Open regulations →</button></article>
+              <article class="card workflow"><div class="workflow-top"><span class="workflow-number">02</span><span class="pill blue">8 clauses</span></div><h3>Assess clauses</h3><p>Read the original wording before drafting an obligation for review.</p><button class="text-link" type="button" data-page="regulations">Review clauses →</button></article>
+              <article class="card workflow"><div class="workflow-top"><span class="workflow-number">03</span><span class="pill">5 leads</span></div><h3>Inspect engineering impact</h3><p>Explore candidate code locations and any proposed changes.</p><button class="text-link" type="button" data-page="impact">View impact leads →</button></article>
+            </div>
+          </section>
+          <p class="note"><strong>Review note:</strong> Code matches are leads for qualified human review, not compliance findings. Mitro does not make legal determinations.</p>
+        </section>
+
+        <section class="page" id="page-regulations" aria-labelledby="regulations-title">
+          <div class="page-heading">
+            <div><p class="eyebrow">Phase 01 · Regulatory intelligence</p><h1 id="regulations-title">Regulations</h1><p class="subtitle">A source-first library with version history and review status for each document.</p></div>
+            <button type="button" class="button"><span aria-hidden="true">＋</span> Add a regulation</button>
+          </div>
+          <div class="impact-banner"><div><strong>Source provenance stays visible</strong><p>Review the source, version, extraction, and hash before relying on an obligation draft.</p></div><span class="pill">12 tracked</span></div>
+          <div class="doc-list">
+            <article class="card document-row"><div class="doc-main"><div class="doc-icon" aria-hidden="true">PDF</div><div class="doc-info"><strong>Digital Lending Directions</strong><span>RBI · RBI/2025-26/42 · 12 Oct 2026 · SHA-256 verified</span></div></div><div class="doc-actions"><span class="pill amber">Needs review</span><button class="button secondary" type="button">View clauses</button></div></article>
+            <article class="card document-row"><div class="doc-main"><div class="doc-icon" aria-hidden="true">PDF</div><div class="doc-info"><strong>Digital Personal Data Protection Rules</strong><span>MeitY · G.S.R. 846(E) · 08 Oct 2026 · 2 versions</span></div></div><div class="doc-actions"><span class="pill blue">New version</span><button class="button secondary" type="button">Compare versions</button></div></article>
+            <article class="card document-row"><div class="doc-main"><div class="doc-icon" aria-hidden="true">PDF</div><div class="doc-info"><strong>IRACP Amendment Directions · DLG provisioning</strong><span>RBI · Paragraph 36C · 02 Oct 2026 · 1 version</span></div></div><div class="doc-actions"><span class="pill">Reviewed</span><button class="button secondary" type="button">View clauses</button></div></article>
+            <article class="card document-row"><div class="doc-main"><div class="doc-icon" aria-hidden="true">TXT</div><div class="doc-info"><strong>Master Direction · Non-Banking Financial Company</strong><span>RBI · Source copy retained · 28 Sep 2026</span></div></div><div class="doc-actions"><span class="pill">Reviewed</span><button class="button secondary" type="button">View clauses</button></div></article>
+          </div>
+          <p class="note"><strong>Concept data:</strong> This screen is a static design preview; listed documents, dates, and statuses are illustrative.</p>
+        </section>
+
+        <section class="page" id="page-impact" aria-labelledby="impact-title">
+          <div class="page-heading">
+            <div><p class="eyebrow">Phase 02 · Engineering impact</p><h1 id="impact-title">Candidate code locations</h1><p class="subtitle">Understand why a reviewed clause may relate to a code path before proposing a change.</p></div>
+            <button type="button" class="button secondary">Scan Lendwise</button>
+          </div>
+          <div class="impact-banner"><div><strong>Lendwise · synthetic demo repository</strong><p>Read-only scan · 146 files indexed · Last scan: 31 Oct 2026 at 10:42</p></div><span class="pill">Demo repository</span></div>
+          <section class="card" aria-label="Illustrative candidate findings">
+            <article class="finding">
+              <div class="finding-top"><span class="finding-title">Digital lending · paragraph 10.1</span><span class="pill amber">Review candidate</span></div>
+              <p class="finding-desc">A legacy import route appears to create a lending record without an explicit consent check. Confirm the clause's scope and the behavior with an engineer.</p>
+              <div class="finding-footer"><span class="file">app/api/v1/legacy_import.py</span><span class="confidence">Rule match · verify manually</span></div>
+            </article>
+            <article class="finding">
+              <div class="finding-top"><span class="finding-title">IRACP Amendment · paragraph 36C</span><span class="pill amber">Review candidate</span></div>
+              <p class="finding-desc">The provisioning calculation may use a fixed DLG cover assumption. Compare the implementation with the source wording and product context.</p>
+              <div class="finding-footer"><span class="file">app/services/provisioning.py</span><span class="confidence">Rule match · verify manually</span></div>
+            </article>
+            <article class="finding">
+              <div class="finding-top"><span class="finding-title">DPDP Rules · data retention</span><span class="pill blue">Needs clause review</span></div>
+              <p class="finding-desc">Potentially related retention logic was found. Review the exact clause and confirm applicability before recording an obligation.</p>
+              <div class="finding-footer"><span class="file">app/services/retention.py</span><span class="confidence">Lexical match · verify manually</span></div>
+            </article>
+          </section>
+          <p class="note"><strong>Review note:</strong> A match does not mean a violation; no match does not prove a control exists. Patch suggestions are limited to supported demo templates and are reviewed in a separate copy.</p>
+        </section>
+
+        <p class="footer-note">UI concept only · illustrative sample data · Mitro local demo</p>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const buttons = [...document.querySelectorAll("[data-page]")];
+    const pages = [...document.querySelectorAll(".page")];
+    const section = document.getElementById("current-section");
+
+    function showPage(name) {
+      pages.forEach(page => page.classList.toggle("active", page.id === `page-${name}`));
+      buttons.forEach(button => {
+        const selected = button.dataset.page === name;
+        if (button.matches(".nav button")) button.setAttribute("aria-current", selected ? "page" : "false");
+      });
+      section.textContent = name === "impact" ? "Engineering impact" : name === "regulations" ? "Regulations" : "Overview";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    buttons.forEach(button => button.addEventListener("click", () => showPage(button.dataset.page)));
+  </script>
+</body>
+</html>
