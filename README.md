@@ -1,10 +1,15 @@
-# Mitro
+# Mitro — Regulatory-to-Engineering Review for NBFCs
 
-**India-focused regulatory intelligence and engineering impact workspace**
+**A review workspace for Indian NBFC compliance and technology teams**
 
-Mitro is a local demonstration platform that helps reviewers trace regulatory documents from RBI and MeitY to clauses, proposed engineering obligations, candidate code locations, and reviewable code-change examples. It brings regulatory source handling and software change analysis into one workflow while keeping human reviewers in control.
+| Project links | |
+| --- | --- |
+| **Live demo** | [mitro-r85m.onrender.com](https://mitro-r85m.onrender.com) |
+| **Video walkthrough** | [Watch the Mitro demo](https://youtu.be/1eMhHhTPQFU) |
 
-Mitro is a prototype for review and demonstration. It is not legal advice, a compliance certification, or an automated determination that an organization has violated a regulation. The included Lendwise application is fictional and contains synthetic scenarios only.
+Mitro helps an NBFC team follow a review trail from a regulatory document to the software areas that may need attention. It organizes RBI and MeitY source text, clause review, proposed engineering obligations, candidate code locations, and a small set of reviewable code-change examples in one place.
+
+Mitro is a prototype for review and demonstration. It does not decide whether a regulation applies to an NBFC, determine that an NBFC is compliant or non-compliant, or replace legal and compliance review. The included Lendwise lending platform is fictional and contains synthetic scenarios only.
 
 ## Contents
 
@@ -23,13 +28,26 @@ Mitro is a prototype for review and demonstration. It is not legal advice, a com
 
 ## What Mitro does
 
-Mitro organizes a review path across three phases:
+For an NBFC, a regulatory update can affect policies, customer journeys, operational controls, and software. Mitro gives compliance and technology reviewers a shared way to examine that possible connection:
 
-1. **Regulatory intelligence:** ingest source documents, preserve provenance, extract clauses, compare versions, and prepare obligation drafts for reviewer assessment.
-2. **Code impact analysis:** inspect a local repository and show candidate code locations that may relate to a reviewed obligation.
-3. **Code change demonstration:** for two supported synthetic scenarios, preview a scoped patch, build it in a separate copy of Lendwise, run regression checks, and download the resulting copy.
+1. **Read the source:** upload or review a regulatory document, inspect extracted clauses, and compare document versions.
+2. **Review the requirement:** draft an engineering obligation linked to a clause, then leave applicability and approval to a human reviewer.
+3. **Explore possible software impact:** scan a local codebase and inspect candidate code locations that may relate to the reviewed obligation.
+4. **Evaluate a limited change example:** preview a supported Lendwise demo patch, build it in a separate copy, and run the associated regression checks.
 
-The workflow is evidence-led: source citations, exact clause text, file paths, and review status are surfaced alongside candidate interpretations. Automated matches are leads for review, not confirmed regulatory findings.
+Mitro surfaces source citations, exact clause text, file paths, and review status to help reviewers understand how a suggestion was formed. Code matches are candidate locations for investigation, not confirmed control gaps or regulatory findings.
+
+### Who it is for
+
+- **NBFC compliance and regulatory affairs:** organize source documents, examine clause changes, and review proposed engineering obligations.
+- **NBFC technology and product teams:** investigate which code areas may relate to a reviewed requirement and discuss potential implementation work.
+- **Risk and assurance reviewers:** follow the available source, obligation, scan, patch, and test evidence during a demo or internal review.
+
+These are intended users of the prototype, not separate authenticated user roles; the local demo has no sign-in or access-control system.
+
+### NBFC examples in the demo
+
+The fictional Lendwise application includes synthetic lending scenarios. Mitro currently demonstrates two scoped code-change cases: consent validation in a legacy digital-lending path, and a DLG cover reduction after invocation. These examples illustrate a review workflow; they do not establish that any real NBFC has an issue or that a proposed interpretation is legally applicable.
 
 ## Features
 
@@ -200,18 +218,6 @@ MITRO_LLM_TIMEOUT_SECONDS=90
 ```
 
 Choose a model available to your account. The selected clause text is sent to Sarvam when a user requests an AI draft. AI drafting is optional; rule-based candidate drafting is available without it.
-
-### Ollama
-
-Run Ollama locally, ensure the selected model is available, then use the defaults in `.env.example` or configure:
-
-```dotenv
-MITRO_LLM_PROVIDER=ollama
-MITRO_LLM_BASE_URL=http://127.0.0.1:11434/v1
-MITRO_LLM_API_KEY=
-MITRO_LLM_MODEL=qwen2.5
-MITRO_LLM_TIMEOUT_SECONDS=90
-```
 
 Mitro sends clause text only to the drafting provider. Repository code is not included in these drafting requests.
 
