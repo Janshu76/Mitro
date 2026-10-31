@@ -62,6 +62,7 @@ def _repository_path(repository: str, repository_id: int | None, db: Session) ->
         raise HTTPException(400, "Repository must be an existing directory within Mitro or MITRO_ALLOWED_REPO_ROOTS")
     return path
 
+@app.get("/health")
 @app.get("/api/health")
 def health():
     return {"status": "ok", "project": "Mitro", "environment": "local-demo"}
