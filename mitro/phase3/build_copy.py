@@ -11,6 +11,8 @@ import zipfile
 
 from mitro.database import DATA_DIR
 from mitro.phase3.changes import LENDWISE
+from mitro.phase3.safety import evaluate_patch_safety
+from mitro.security.untrusted import inspect_untrusted_text
 
 IGNORED_DIRS = {".git", ".venv", "venv", "__pycache__", "var", "node_modules", ".pytest_cache"}
 
@@ -27,6 +29,11 @@ def _zip_copy(project: Path, archive: Path) -> None:
 
 def build_and_verify(proposal, proposal_id: int) -> dict:
     """Build once per proposal. Only the bundled synthetic Lendwise is executable."""
+    safety = evaluate_patch_safety(proposal.scenario, proposal.edits)
+    if not safety["allowed"]:
+        raise ValueError("Safe Patch Guard blocked this change: " + "; ".join(safety["reasons"]))
+    if inspect_untrusted_text(proposal.quote)["flagged"]:
+        raise ValueError("Safe Patch Guard abstained because the source quote contains instruction-like text")
     if proposal.bundle_path and Path(proposal.bundle_path).is_file():
         return {"test_status": proposal.test_status, "test_output": proposal.test_output,
                 "download_ready": True, "copy_path": proposal.copy_path}
@@ -80,6 +87,7 @@ def build_and_verify(proposal, proposal_id: int) -> dict:
         "generated_test": "tests/test_mitro_phase3_generated.py",
         "test_status": status,
         "test_output": output,
+        "safe_patch_guard": safety,
         "original_source_modified": False,
         "limitations": ["Synthetic demonstration only; not a regulatory finding or legal/accounting opinion.",
                         "Patch template and test behavior require qualified human review."]

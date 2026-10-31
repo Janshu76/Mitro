@@ -10,6 +10,7 @@ Mitro is a local demo MVP for Phase 1 (regulatory intelligence), Phase 2 (code i
 - Synthetic target: Lendwise service with planted engineering scenarios and secure decoys.
 - Storage: SQLAlchemy models with SQLite for local quickstart and PostgreSQL via MITRO_DATABASE_URL for a shared environment.
 - UI/API: local review dashboard and FastAPI endpoints.
+- Improvement MVPs: scoped Safe Patch Guard, evidence metadata, prompt-injection heuristics with AI abstention, regulatory version impact tracing, append-only workflow audit events, and an offline dependency update impact scan.
 
 The included corpus has seven owner-supplied PDF copies and four owner-supplied circular text extracts. Review sources/manifest.json and sources/catalog.yaml. The manifest leaves direct source URLs blank where they were not included with a source copy. Verify and add document-specific official URLs before production use. The supplied G.S.R. 843(E) file is the DPDP Act commencement notification; the separate DPDP Rules are G.S.R. 846(E), linked in the catalog and fetchable from MeitY.
 
@@ -30,9 +31,19 @@ For a manual setup:
     python -m mitro.cli bootstrap
     uvicorn mitro.api.app:app --reload
 
-Visit http://127.0.0.1:8000. API docs are at /docs. Bootstrap can be repeated; identical file hashes are deduplicated. To use PostgreSQL, set MITRO_DATABASE_URL to a SQLAlchemy URL such as postgresql+psycopg://user:password@localhost/mitro.
+Visit http://127.0.0.1:8000 for the new landing page or http://127.0.0.1:8000/workbench for the full review workspace. API docs are at /docs. Bootstrap can be repeated; identical file hashes are deduplicated. To use PostgreSQL, set MITRO_DATABASE_URL to a SQLAlchemy URL such as postgresql+psycopg://user:password@localhost/mitro.
 
 See [DEMO_GUIDE.md](DEMO_GUIDE.md) for the presenter flow and sample Lendwise obligation.
+
+## Safety and change-impact MVPs
+
+- **Safe Patch Guard** checks the two supported demo scenarios against explicit file allowlists, protected paths, secret-like content, and size limits before building a separate copy. Every proposed patch still requires human review.
+- **Evidence metadata** ties patch proposals to the source identifier, citation, source hash, exact quotation, code files, and any linked obligations. The current direct-from-clause proposal flow may have no approved obligation linked; the interface calls this out for review.
+- **Prompt-injection handling** flags a small set of instruction-like patterns in clauses and makes AI obligation drafting abstain for those clauses. This is a heuristic safeguard, not a complete prompt-injection detector. Repository code is not sent to the drafting model.
+- **Regression checks** run in the existing isolated-copy workflow. A passing test describes tested behavior, not legal compliance.
+- **Regulatory impact tracing** compares clauses by citation between two versions, lists linked obligations, and maps approved obligations to candidate code locations. Citation changes and clause splits/merges require manual review.
+- **Audit history** is available from the workbench’s “Change & dependency impact” view and `/api/audit`. It is an application log, not a tamper-proof archive.
+- **Framework/dependency analysis** scans local dependency manifests and Python imports for a manually entered proposed package version. Optional migration notes are inspected locally for review-related terms. It does not check live registries, advisories, or release-note sources and does not install or upgrade packages.
 
 ## Review flow
 

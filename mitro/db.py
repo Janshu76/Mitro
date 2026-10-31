@@ -105,3 +105,12 @@ class CodeChangeProposal(Base):
     copy_path: Mapped[str] = mapped_column(Text, default="")
     bundle_path: Mapped[str] = mapped_column(Text, default="")
     created_at: Mapped[str] = mapped_column(String(40), index=True)
+
+class AuditEvent(Base):
+    __tablename__ = "audit_events"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    occurred_at: Mapped[str] = mapped_column(String(40), index=True)
+    action: Mapped[str] = mapped_column(String(80), index=True)
+    entity_type: Mapped[str] = mapped_column(String(80), index=True)
+    entity_id: Mapped[str] = mapped_column(String(160), default="")
+    details: Mapped[dict] = mapped_column(JSON, default=dict)

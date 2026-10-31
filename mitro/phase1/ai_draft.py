@@ -3,6 +3,7 @@ import json, os, re
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from mitro.db import DocumentVersion, Clause, Obligation
+from mitro.security.untrusted import inspect_untrusted_text
 
 async def draft_for_version(db: Session, version_id: int) -> dict:
     provider = os.getenv("MITRO_LLM_PROVIDER", "ollama").strip().lower()
@@ -34,6 +35,11 @@ async def draft_for_version(db: Session, version_id: int) -> dict:
     import httpx
     async with httpx.AsyncClient(timeout=timeout) as client:
         for clause in targets[:20]:
+            untrusted_review = inspect_untrusted_text(clause.text)
+            if untrusted_review["flagged"]:
+                rejected.append({"citation": clause.citation,
+                                 "reason": "Instruction-like text detected in source; AI drafting abstained and requires human review."})
+                continue
             prompt = {"citation": clause.citation, "verbatim_clause": clause.text}
             if len(clause.text) > 10000:
                 rejected.append({"citation": clause.citation, "reason": "Clause is longer than the safe drafting limit; review or split it first."})

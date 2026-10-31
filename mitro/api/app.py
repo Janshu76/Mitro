@@ -9,7 +9,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from mitro.database import get_db, ROOT, DATA_DIR
-from mitro.db import RegulatoryDocument, DocumentVersion, Clause, Obligation, RepositoryScan, SourceCheck, CodeRepository, CodeChangeProposal
+from mitro.db import RegulatoryDocument, DocumentVersion, Clause, Obligation, RepositoryScan, SourceCheck, CodeRepository, CodeChangeProposal, AuditEvent
+from mitro.audit import record_event
 from mitro.phase1.ingest import ingest_file, bootstrap
 from mitro.phase1.redline import redline
 from mitro.phase2.scanner import scan_repository, impact_candidates
@@ -40,6 +41,12 @@ class RepositoryIn(BaseModel):
     name: str = Field(min_length=2, max_length=200)
     path: str = Field(min_length=3, max_length=2000)
 
+class DependencyAnalysisIn(BaseModel):
+    package: str = Field(min_length=1, max_length=120)
+    proposed_version: str = Field(min_length=1, max_length=80)
+    release_notes: str = Field(default="", max_length=12000)
+    repository_id: int = 0
+
 def _allowed_roots() -> list[Path]:
     roots = [ROOT.resolve()]
     for raw in os.getenv("MITRO_ALLOWED_REPO_ROOTS", "").split(os.pathsep):
@@ -66,6 +73,28 @@ def _repository_path(repository: str, repository_id: int | None, db: Session) ->
 @app.get("/api/health")
 def health():
     return {"status": "ok", "project": "Mitro", "environment": "local-demo"}
+
+@app.get("/api/audit")
+def list_audit_events(limit: int = 100, db: Session = Depends(get_db)):
+    limit = max(1, min(limit, 500))
+    events = db.scalars(select(AuditEvent).order_by(AuditEvent.id.desc()).limit(limit)).all()
+    return [{"id": event.id, "occurred_at": event.occurred_at, "action": event.action,
+             "entity_type": event.entity_type, "entity_id": event.entity_id, "details": event.details}
+            for event in events]
+
+@app.post("/api/dependencies/analyze")
+def dependency_impact_analysis(body: DependencyAnalysisIn, db: Session = Depends(get_db)):
+    from mitro.dependencies import analyze_dependency_update
+    path = _repository_path("targets/lendwise", body.repository_id, db)
+    try:
+        result = analyze_dependency_update(path, body.package, body.proposed_version, body.release_notes)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    record_event(db, "dependency_update_analyzed", "repository", body.repository_id,
+                 package=result["package"], proposed_version=result["proposed_version"],
+                 affected_files=len(result["code_uses"]))
+    db.commit()
+    return result
 
 @app.get("/api/documents")
 def list_documents(db: Session = Depends(get_db)):
@@ -116,6 +145,9 @@ def register_repository(body: RepositoryIn, db: Session = Depends(get_db)):
     repo = CodeRepository(name=body.name.strip(), root_path=str(path), source_kind="local_path",
                           created_at=datetime.now(timezone.utc).isoformat())
     db.add(repo); db.commit(); db.refresh(repo)
+    record_event(db, "repository_registered", "repository", repo.id, name=repo.name,
+                 source_kind="local_path")
+    db.commit()
     return {"id": repo.id, "name": repo.name, "message": "Registered for read-only local scanning"}
 
 @app.post("/api/ingest")
@@ -129,9 +161,13 @@ async def upload_document(file: UploadFile = File(...), identifier: str = Form(.
     target = DATA_DIR / "raw" / (uuid.uuid4().hex[:12] + "-" + safe_name)
     target.write_bytes(await file.read())
     try:
-        return ingest_file(db, target, {"regulator": regulator, "identifier": identifier, "title": title,
+        result = ingest_file(db, target, {"regulator": regulator, "identifier": identifier, "title": title,
              "version_date": version_date, "publication_date": publication_date, "source_url": source_url,
              "source_kind": "uploaded"})
+        record_event(db, "document_uploaded", "document", result["document_id"], identifier=identifier,
+                     version_id=result["version_id"], sha256=result.get("sha256", ""))
+        db.commit()
+        return result
     except Exception as exc:
         raise HTTPException(400, f"Ingestion failed: {exc}") from exc
 
@@ -164,15 +200,23 @@ async def ingest_official_url(url: str = Form(...), identifier: str = Form(...),
     target = DATA_DIR / "raw" / (uuid.uuid4().hex[:12] + suffix)
     target.write_bytes(body)
     try:
-        return ingest_file(db, target, {"regulator": regulator, "identifier": identifier, "title": title,
+        result = ingest_file(db, target, {"regulator": regulator, "identifier": identifier, "title": title,
              "version_date": version_date, "publication_date": publication_date, "source_url": url,
              "source_kind": "fetched_official_source"})
+        record_event(db, "official_source_ingested", "document", result["document_id"],
+                     identifier=identifier, version_id=result["version_id"],
+                     sha256=result.get("sha256", ""))
+        db.commit()
+        return result
     except Exception as exc:
         raise HTTPException(400, f"Fetched file could not be ingested: {exc}") from exc
 @app.post("/api/bootstrap")
 def bootstrap_sources(db: Session = Depends(get_db)):
     try:
-        return {"ingested": bootstrap(db)}
+        ingested = bootstrap(db)
+        record_event(db, "corpus_bootstrapped", "source_corpus", "included", documents=len(ingested))
+        db.commit()
+        return {"ingested": ingested}
     except Exception as exc:
         raise HTTPException(400, f"Bootstrap failed: {exc}") from exc
 
@@ -207,6 +251,9 @@ def prepare_demo_obligation(db: Session = Depends(get_db)):
     db.add(obligation)
     db.commit()
     db.refresh(obligation)
+    record_event(db, "demo_obligation_created", "obligation", obligation.id,
+                 key=obligation.key, clause_id=obligation.clause_id)
+    db.commit()
     return {"id": obligation.id, "key": obligation.key, "status": obligation.status,
             "citation": clause.citation,
             "message": "Sample created as proposed. Review and approve it before mapping it to code."}
@@ -222,6 +269,42 @@ def list_clauses(version_id: int, db: Session = Depends(get_db)):
 def get_redline(old_version_id: int, new_version_id: int, db: Session = Depends(get_db)):
     try: return redline(db, old_version_id, new_version_id)
     except ValueError as exc: raise HTTPException(400, str(exc)) from exc
+
+@app.get("/api/versions/{old_version_id}/impact/{new_version_id}")
+def regulatory_change_impact(old_version_id: int, new_version_id: int, repository_id: int = 0,
+                              db: Session = Depends(get_db)):
+    old, new = db.get(DocumentVersion, old_version_id), db.get(DocumentVersion, new_version_id)
+    if not old or not new:
+        raise HTTPException(404, "Both regulatory versions must exist")
+    if old.document_id != new.document_id:
+        raise HTTPException(422, "Choose two versions of the same regulatory document")
+    old_clauses = db.scalars(select(Clause).where(Clause.version_id == old.id)).all()
+    new_clauses = db.scalars(select(Clause).where(Clause.version_id == new.id)).all()
+    old_by = {c.citation: c for c in old_clauses}; new_by = {c.citation: c for c in new_clauses}
+    path = _repository_path("targets/lendwise", repository_id, db)
+    changes = []
+    for citation in sorted(set(old_by) | set(new_by)):
+        before, after = old_by.get(citation), new_by.get(citation)
+        if before and after and before.text.strip() == after.text.strip():
+            continue
+        linked = db.scalars(select(Obligation).where(Obligation.clause_id == before.id)).all() if before else []
+        obligations = []
+        for obligation in linked:
+            candidates = impact_candidates(path, obligation.statement, obligation.quote, citation) if obligation.status == "approved" else []
+            obligations.append({"id": obligation.id, "key": obligation.key, "status": obligation.status,
+                                "review_required": True, "candidate_code_locations": candidates})
+        changes.append({"citation": citation, "change_type": "added" if not before else "removed" if not after else "amended",
+                        "old_text": before.text if before else "", "new_text": after.text if after else "",
+                        "obligations": obligations, "human_review_required": True})
+    result = {"document": old.document.identifier, "old_version": {"id": old.id, "date": old.version_date, "sha256": old.sha256},
+              "new_version": {"id": new.id, "date": new.version_date, "sha256": new.sha256},
+              "changed_clause_count": len(changes), "changes": changes,
+              "limitations": ["Clause citations are matched heuristically; numbering changes can split or merge clauses.",
+                              "Code locations are candidates only. A qualified reviewer must confirm applicability and impact."]}
+    record_event(db, "regulatory_impact_compared", "document", old.document.identifier,
+                 old_version_id=old.id, new_version_id=new.id, changed_clauses=len(changes))
+    db.commit()
+    return result
 
 @app.get("/api/draft-obligations/{version_id}")
 def draft_obligations(version_id: int, db: Session = Depends(get_db)):
@@ -244,7 +327,13 @@ def draft_obligations(version_id: int, db: Session = Depends(get_db)):
 async def ai_draft_obligations(version_id: int, db: Session = Depends(get_db)):
     from mitro.phase1.ai_draft import draft_for_version
     try:
-        return await draft_for_version(db, version_id)
+        result = await draft_for_version(db, version_id)
+        record_event(db, "ai_obligations_drafted", "document_version", version_id,
+                     provider=result.get("provider", ""), model=result.get("model", ""),
+                     proposed_count=len(result.get("proposed", [])),
+                     rejected_count=len(result.get("rejected", [])))
+        db.commit()
+        return result
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
     except RuntimeError as exc:
@@ -260,6 +349,8 @@ def create_obligation(body: ObligationIn, db: Session = Depends(get_db)):
     ob = Obligation(clause_id=clause.id, key=body.key, quote=body.quote, statement=body.statement,
                     engineering_shape=body.engineering_shape, status="proposed")
     db.add(ob); db.commit(); db.refresh(ob)
+    record_event(db, "obligation_proposed", "obligation", ob.id, key=ob.key, clause_id=clause.id)
+    db.commit()
     return {"id": ob.id, "key": ob.key, "status": ob.status}
 
 @app.get("/api/obligations")
@@ -276,16 +367,32 @@ def approve_obligation(obligation_id: int, body: ApprovalIn, db: Session = Depen
     ob.status = "approved"; ob.approved_by = body.approver
     ob.approved_at = datetime.now(timezone.utc).isoformat(); ob.reviewer_note = body.reviewer_note
     db.commit()
+    record_event(db, "obligation_approved", "obligation", ob.id, reviewer=body.approver,
+                 clause_id=ob.clause_id)
+    db.commit()
     return {"id": ob.id, "status": ob.status, "approved_by": ob.approved_by}
 
-def _proposal_json(proposal: CodeChangeProposal) -> dict:
+def _proposal_json(proposal: CodeChangeProposal, db: Session | None = None) -> dict:
     clause = proposal.clause_id
+    from mitro.phase3.safety import evaluate_patch_safety
+    safety = evaluate_patch_safety(proposal.scenario, proposal.edits)
+    linked = []
+    if db is not None:
+        linked = db.scalars(select(Obligation).where(Obligation.clause_id == proposal.clause_id)).all()
     return {"id": proposal.id, "clause_id": clause, "scenario": proposal.scenario,
             "source_citation": proposal.source_citation or "", "source_identifier": proposal.source_identifier or "",
             "source_url": proposal.source_url or "", "source_sha256": proposal.source_sha256 or "",
             "title": proposal.title, "quote": proposal.quote, "statement": proposal.statement,
             "expected_behavior": proposal.expected_behavior, "rationale": proposal.rationale,
             "diff": proposal.diff, "test_status": proposal.test_status,
+            "safety_review": safety,
+            "evidence_grounding": {"source_identifier": proposal.source_identifier,
+                "source_citation": proposal.source_citation, "source_sha256": proposal.source_sha256,
+                "verbatim_quote_present": bool(proposal.quote),
+                "code_files": [e.get("file", "") for e in proposal.edits],
+                "linked_obligations": [{"id": o.id, "key": o.key, "status": o.status} for o in linked],
+                "approved_obligation_present": any(o.status == "approved" for o in linked),
+                "human_review_required": True},
             "test_output": proposal.test_output, "copy_ready": bool(proposal.bundle_path),
             "download_url": f"/api/phase3/proposals/{proposal.id}/download" if proposal.bundle_path else "",
             "created_at": proposal.created_at}
@@ -309,7 +416,10 @@ def propose_code_change(clause_id: int, db: Session = Depends(get_db)):
         test_source=draft["test_source"], test_status="not_run",
         created_at=datetime.now(timezone.utc).isoformat())
     db.add(proposal); db.commit(); db.refresh(proposal)
-    return {**_proposal_json(proposal), "method": draft["method"], "limitations": draft["limitations"],
+    record_event(db, "patch_proposed", "patch", proposal.id, scenario=proposal.scenario,
+                 clause_id=clause.id, source_sha256=proposal.source_sha256)
+    db.commit()
+    return {**_proposal_json(proposal, db), "method": draft["method"], "limitations": draft["limitations"],
             "message": "Draft only. Review the clause, interpretation, and diff before building the separate copy."}
 
 @app.get("/api/phase3/proposals/{proposal_id}")
@@ -317,13 +427,23 @@ def get_code_change_proposal(proposal_id: int, db: Session = Depends(get_db)):
     proposal = db.get(CodeChangeProposal, proposal_id)
     if not proposal:
         raise HTTPException(404, "Code change proposal not found")
-    return _proposal_json(proposal)
+    return _proposal_json(proposal, db)
 
 @app.post("/api/phase3/proposals/{proposal_id}/build")
 def build_proposed_copy(proposal_id: int, db: Session = Depends(get_db)):
     proposal = db.get(CodeChangeProposal, proposal_id)
     if not proposal:
         raise HTTPException(404, "Code change proposal not found")
+    from mitro.phase3.safety import evaluate_patch_safety
+    from mitro.security.untrusted import inspect_untrusted_text
+    guard = evaluate_patch_safety(proposal.scenario, proposal.edits)
+    untrusted = inspect_untrusted_text(proposal.quote)
+    if not guard["allowed"] or untrusted["flagged"]:
+        reasons = guard["reasons"] + (["Instruction-like source text detected"] if untrusted["flagged"] else [])
+        record_event(db, "patch_blocked_by_guard", "patch", proposal.id,
+                     scenario=proposal.scenario, reasons=reasons)
+        db.commit()
+        raise HTTPException(409, "Safe Patch Guard blocked this build: " + "; ".join(reasons))
     try:
         result = build_and_verify(proposal, proposal.id)
     except (ValueError, FileNotFoundError, FileExistsError) as exc:
@@ -333,7 +453,11 @@ def build_proposed_copy(proposal_id: int, db: Session = Depends(get_db)):
     proposal.copy_path = result["copy_path"]
     proposal.bundle_path = result.get("bundle_path", proposal.bundle_path)
     db.commit()
-    return {**_proposal_json(proposal), "test_output": result["test_output"],
+    record_event(db, "patch_built_and_tested", "patch", proposal.id,
+                 scenario=proposal.scenario, test_status=proposal.test_status,
+                 source_sha256=proposal.source_sha256)
+    db.commit()
+    return {**_proposal_json(proposal, db), "test_output": result["test_output"],
             "message": "A separate Lendwise copy was created. The original source folder was not changed."}
 
 @app.get("/api/phase3/proposals/{proposal_id}/download")
@@ -354,6 +478,9 @@ def scan_target(repository: str = "targets/lendwise", repository_id: int | None 
     scan = RepositoryScan(repository_path=str(path), scanned_at=datetime.now(timezone.utc).isoformat(),
                           engine="Amend Python code graph + Mitro keyword mapper", summary=summary)
     db.add(scan); db.commit(); db.refresh(scan)
+    record_event(db, "repository_scanned", "repository_scan", scan.id,
+                 repository=str(path), candidate_count=len(summary.get("candidate_findings", [])))
+    db.commit()
     return {"scan_id": scan.id, **summary}
 
 @app.get("/api/impact/{obligation_id}")
@@ -372,6 +499,10 @@ def obligation_impact(obligation_id: int, repository: str = "targets/lendwise", 
 app.mount("/static", StaticFiles(directory=ROOT / "web"), name="static")
 @app.get("/", include_in_schema=False)
 def home():
+    return FileResponse(ROOT / "web" / "home.html")
+
+@app.get("/workbench", include_in_schema=False)
+def workbench():
     return FileResponse(ROOT / "web" / "index.html")
 
 
