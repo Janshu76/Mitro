@@ -499,7 +499,7 @@ def obligation_impact(obligation_id: int, repository: str = "targets/lendwise", 
 app.mount("/static", StaticFiles(directory=ROOT / "web"), name="static")
 @app.get("/", include_in_schema=False)
 def home():
-    return FileResponse(ROOT / "web" / "home.html")
+    return FileResponse(ROOT / "web" / "index.html")
 
 @app.get("/workbench", include_in_schema=False)
 def workbench():

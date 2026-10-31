@@ -84,9 +84,22 @@ class ImprovementFeatureTests(unittest.TestCase):
         landing = self.client.get("/")
         workbench = self.client.get("/workbench?view=updates")
         self.assertEqual(landing.status_code, 200)
-        self.assertIn("Turn Regulation", landing.text)
+        self.assertIn('id="start-title"', landing.text)
+        self.assertIn('/static/mitro-ui/yoyu-readable.css', landing.text)
+        self.assertEqual(landing.text, workbench.text)
         self.assertEqual(workbench.status_code, 200)
         self.assertIn("Framework &amp; dependency update analysis", workbench.text)
+
+    def test_main_ui_assets_and_current_controls_are_available(self):
+        page = self.client.get("/").text
+        for name in ("preview-core.css", "yoyu.css", "yoyu-motion.css", "yoyu-readable.css", "main.css", "motion.js"):
+            url = f"/static/mitro-ui/{name}"
+            self.assertIn(url, page)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, url)
+            self.assertTrue(response.content, url)
+        for control in ("upload", "obform", "scan", "buildCopy", "downloadCopy", "dependencyForm", "impactCompare", "refreshAudit"):
+            self.assertIn(f'id="{control}"', page)
 
     def test_regulatory_impact_api_traces_changed_clause_and_obligation(self):
         db = self.sessions()
