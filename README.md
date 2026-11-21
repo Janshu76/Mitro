@@ -1,180 +1,345 @@
-# Mitro — Regulatory-to-Engineering Review for NBFCs
-#Cybersecurity Track
+<div align="center">
 
-**A review workspace for Indian NBFC compliance and technology teams**
+# Mitro
 
-| Project links | |
+### Regulatory-to-Engineering Review for Indian NBFCs
+
+**Trace an RBI / MeitY regulatory change from the source clause to the code that may need attention, with a human reviewer at every decision point.**
+
+`Cybersecurity Track`
+
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-default-003B57?logo=sqlite&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-optional-4169E1?logo=postgresql&logoColor=white)
+![Status](https://img.shields.io/badge/status-prototype-orange)
+
+</div>
+
+---
+
+## Project Links
+
+| | |
 | --- | --- |
-| **Live demo** | [mitro-r85m.onrender.com](https://mitro-r85m.onrender.com) |
-| **Video walkthrough** | [Watch the Mitro demo](https://youtu.be/1eMhHhTPQFU) |
+| 🌐 **Live Project** | [mitro-r85m.onrender.com](https://mitro-r85m.onrender.com) |
+| 🎬 **Video Walkthrough** | [Watch the Mitro demo on YouTube](https://youtu.be/1eMhHhTPQFU) |
+| 📖 **Presenter Guide** | [DEMO_GUIDE.md](DEMO_GUIDE.md) |
+| 📚 **Source Inventory** | [sources/README.md](sources/README.md) |
+| 🏦 **Demo Target App** | [targets/lendwise/README.md](targets/lendwise/README.md) |
 
-Mitro helps an NBFC team follow a review trail from a regulatory document to the software areas that may need attention. It organizes RBI and MeitY source text, clause review, proposed engineering obligations, candidate code locations, and a small set of reviewable code-change examples in one place.
+### Demo Video
 
-Mitro is a prototype for review and demonstration. It does not decide whether a regulation applies to an NBFC, determine that an NBFC is compliant or non-compliant, or replace legal and compliance review. The included Lendwise lending platform is fictional and contains synthetic scenarios only.
+[![Mitro demo video](https://img.youtube.com/vi/1eMhHhTPQFU/maxresdefault.jpg)](https://youtu.be/1eMhHhTPQFU)
+
+> Click the thumbnail to watch the walkthrough.
+
+> ⚠️ **Public demo notice:** The prototype has no user authentication. Do not upload non-public regulatory material, real borrower data, API keys, or company source code to the hosted instance.
+
+---
+
+## Overview
+
+For an NBFC, one regulatory update can touch policies, customer journeys, operational controls **and** software. Compliance teams read the circular; engineering teams read the code; and the link between the two is usually a meeting and a spreadsheet.
+
+**Mitro gives both teams one shared review trail:**
+
+```
+Regulatory document  →  Clause  →  Engineering obligation  →  Candidate code location  →  Reviewable patch + test evidence
+```
+
+Every step keeps its **source citation, exact clause text, file path, and review status**, so a reviewer can see how any suggestion was formed.
+
+> **Important.** Mitro is a prototype for review and demonstration. It does **not** decide whether a regulation applies to an NBFC, determine compliance or non-compliance, or replace legal and compliance review. Code matches are *candidate locations for investigation*, not confirmed control gaps or regulatory findings. The bundled **Lendwise** platform is fictional and uses synthetic scenarios only.
 
 ## Contents
 
-- [What Mitro does](#what-mitro-does)
-- [Features](#features)
-- [System architecture](#system-architecture)
-- [Technology stack](#technology-stack)
-- [Quick start](#quick-start)
-- [Optional AI configuration](#optional-ai-configuration)
-- [Typical review workflow](#typical-review-workflow)
-- [API overview](#api-overview)
-- [Project structure](#project-structure)
-- [Data, privacy, and safety boundaries](#data-privacy-and-safety-boundaries)
-- [Known limitations](#known-limitations)
-- [Development and verification](#development-and-verification)
+- [Who Mitro Is For](#who-mitro-is-for)
+- [Key Features](#key-features)
+- [System Architecture](#system-architecture)
+  - [1. End-to-end view](#1-end-to-end-view)
+  - [2. Organisation view (compliance & risk)](#2-organisation-view-compliance--risk)
+  - [3. Software team view (engineering)](#3-software-team-view-engineering)
+  - [4. Component map](#4-component-map)
+  - [Data flow](#data-flow)
+- [Technology Stack](#technology-stack)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Typical Review Workflow](#typical-review-workflow)
+- [API Overview](#api-overview)
+- [Project Structure](#project-structure)
+- [Security, Privacy & Safety Boundaries](#security-privacy--safety-boundaries)
+- [Known Limitations](#known-limitations)
+- [Development & Verification](#development--verification)
 
-## What Mitro does
+---
 
-For an NBFC, a regulatory update can affect policies, customer journeys, operational controls, and software. Mitro gives compliance and technology reviewers a shared way to examine that possible connection:
+## Who Mitro Is For
 
-1. **Read the source:** upload or review a regulatory document, inspect extracted clauses, and compare document versions.
-2. **Review the requirement:** draft an engineering obligation linked to a clause, then leave applicability and approval to a human reviewer.
-3. **Explore possible software impact:** scan a local codebase and inspect candidate code locations that may relate to the reviewed obligation.
-4. **Evaluate a limited change example:** preview a supported Lendwise demo patch, build it in a separate copy, and run the associated regression checks.
+Mitro is designed around two collaborating groups. These are intended *users of the prototype*, not authenticated roles; the local demo has no sign-in or access control.
 
-Mitro surfaces source citations, exact clause text, file paths, and review status to help reviewers understand how a suggestion was formed. Code matches are candidate locations for investigation, not confirmed control gaps or regulatory findings.
+| | 🏢 Organisation (Compliance, Risk & Assurance) | 💻 Software Team (Technology & Product) |
+| --- | --- | --- |
+| **Goal** | Understand what changed in a regulation and record a defensible interpretation | Find which code areas may relate to a reviewed requirement and plan the work |
+| **Works with** | Source documents, clauses, redlines, obligations, approvals, audit history | Code scans, candidate locations, patch proposals, regression tests, pull requests |
+| **Mitro helps by** | Cataloguing sources, extracting and comparing clauses, drafting obligations for review, tracking lifecycle states | Mapping approved obligations to code, previewing scoped changes in a separate copy, running regression checks |
+| **Decides** | Applicability, obligation wording, approval | Implementation approach, merge, release |
+| **Evidence they see** | Source hash, page-linked clause text, status history, audit trail | File paths, snippets, diff, test outcome, dependency impact |
 
-### Who it is for
+---
 
-- **NBFC compliance and regulatory affairs:** organize source documents, examine clause changes, and review proposed engineering obligations.
-- **NBFC technology and product teams:** investigate which code areas may relate to a reviewed requirement and discuss potential implementation work.
-- **Risk and assurance reviewers:** follow the available source, obligation, scan, patch, and test evidence during a demo or internal review.
+## Key Features
 
-These are intended users of the prototype, not separate authenticated user roles; the local demo has no sign-in or access-control system.
+### 🏢 For the organisation
 
-### NBFC examples in the demo
+- **Regulatory source catalog** – supplied RBI and MeitY document copies, cataloged with identifiers, dates and provenance metadata.
+- **Document ingestion** – PDF, text, Markdown, XML and HTML uploads, plus a single explicitly supplied HTTPS URL from permitted official domains.
+- **On-demand source checks** – re-check catalogued official URLs when requested, keep changed copies as new versions, and record SHA-256 hashes *(not continuous monitoring)*.
+- **Clause extraction & review** – segments text into clause candidates, keeps the starting PDF page, opens the original PDF at that page, and flags cases that need OCR or manual correction.
+- **Version comparison** – text redlines and clause-level changes between versions of the same document.
+- **Obligation drafting & approval** – rule-based candidates or optional model-assisted drafts (Sarvam / Ollama). Drafts stay *proposals* until a human approves them.
+- **Obligation lifecycle & tasks** – compliance and engineering review states with the actor and note for each change, and dated engineering tasks with blockers and completion status.
+- **Audit history** – application-level log of ingestion, approval, scans, patch builds and impact analysis.
 
-The fictional Lendwise application includes synthetic lending scenarios. Mitro currently demonstrates two scoped code-change cases: consent validation in a legacy digital-lending path, and a DLG cover reduction after invocation. These examples illustrate a review workflow; they do not establish that any real NBFC has an issue or that a proposed interpretation is legally applicable.
+### 💻 For the software team
 
-## Features
+- **Repository registration & scanning** – register an allowed local repository or connect a GitHub App, pick an installation repository and branch, and run a **read-only** scan that surfaces candidate code locations with paths and snippets.
+- **Regulatory change impact** – compare two document versions, find linked obligations, and map approved obligations to candidate code for re-review.
+- **Scoped code-change examples** – preview changes for exactly two bundled Lendwise scenarios:
+  - Digital Lending ¶10.1 – consent validation in a legacy-import path
+  - IRACP Amendment ¶36C – DLG cover reduction after invocation
+- **Safe Patch Guard** – scenario-specific file allowlists, protected paths, secret-like content checks and patch-size limits before a separate edited copy is created.
+- **Regression evidence** – generated checks run in the separate copy; the outcome is retained as evidence of *tested behaviour*. Download the result as a ZIP.
+- **GitHub change control** – signed webhook validation, short-lived repository-scoped installation tokens, and an optional **draft** pull request on a separate branch after an approved obligation, exact source match, passing scoped test and deterministic patch-safety check.
+- **Dependency update impact** – inspect local manifests and Python imports for a manually supplied version proposal (offline; nothing is installed).
+- **Amend analysis engine** – bundled engine (`amend/`) for code graph building, canary and guard checks, verification and evidence generation, with optional IBM Granite (watsonx.ai) drafting and screening.
 
-- **Regulatory source catalog:** supplied RBI and MeitY document copies are cataloged with identifiers, dates, and provenance metadata.
-- **Document ingestion:** accept PDF, text, Markdown, XML, and HTML uploads; fetch a single explicitly supplied HTTPS source URL from permitted official domains.
-- **On-demand source checks:** check catalogued official URLs when requested, retain changed copies as new versions, and calculate SHA-256 hashes. This is not continuous monitoring.
-- **Clause extraction and review:** extract text, segment it into clause candidates, retain the starting PDF page for each clause, open the original PDF at that page, and flag cases that may need OCR or manual correction.
-- **Version comparison:** compare versions of the same regulatory document and inspect text redlines and clause-level changes.
-- **Obligation drafting and approval:** create rule-based candidates or optional model-assisted drafts. Drafts remain proposals until a human reviewer approves them.
-- **Sarvam AI support:** optionally use Sarvam for Phase 1 obligation drafting from selected clause text. Sarvam is not used for repository scanning or patch generation.
-- **Repository registration and scanning:** register an allowed local repository or connect a GitHub App, select an installation repository and branch, inventory supported code read-only, and surface candidate code locations with paths and snippets.
-- **Regulatory change impact:** compare two document versions, find linked obligations, and map approved obligations to candidate code locations for re-review.
-- **Scoped code-change examples:** preview changes for exactly two bundled Lendwise scenarios: the DLG cover reduction after invocation example and consent validation in a legacy digital-lending path.
-- **Safe Patch Guard:** enforce scenario-specific file allowlists, protected paths, secret-like content checks, and patch size limits before creating a separate edited copy.
-- **Regression evidence:** run generated checks in the separate copy and retain the outcome as evidence about tested behavior.
-- **Dependency update impact:** inspect local dependency manifests and Python imports for a manually supplied version proposal. It does not install packages or check live vulnerability databases.
-- **Audit history:** record key workflow actions such as ingestion, approval, scans, patch building, and impact analysis.
-- **GitHub change control:** validate signed webhooks, scope short-lived installation tokens to selected repositories, and optionally open a draft pull request on a separate branch after an approved obligation, exact source match, passing scoped test, and deterministic patch safety check.
-- **Obligation lifecycle and engineering tasks:** move obligations through compliance and engineering review states, see the actor and note for each change, and assign dated engineering tasks with blockers and completion status.
-- **Local web workspace:** a landing page and workbench provide access to document review, obligations, scanning, code-change demonstrations, impact analysis, and audit history.
+---
 
-## System architecture
+## System Architecture
+
+Mitro is a single FastAPI service with a lightweight web UI. Its workflows are organised so that the **organisation** and the **software team** each own one half of the review trail and meet at the *approved obligation*.
+
+### 1. End-to-end view
 
 ```mermaid
 flowchart TB
-    Reviewer[Reviewer or developer] --> Browser[Mitro web UI<br/>HTML, CSS, JavaScript]
-    Browser -->|HTTP requests| API[FastAPI application]
+    subgraph Users["People"]
+        direction LR
+        ORG["🏢 Organisation<br/>Compliance · Risk · Assurance"]
+        DEV["💻 Software team<br/>Engineering · Product"]
+    end
+
+    UI["Mitro web UI<br/>HTML · CSS · vanilla JavaScript<br/>Landing page + Workbench"]
+    API["FastAPI application<br/>REST API + OpenAPI docs"]
+
+    ORG --> UI
+    DEV --> UI
+    UI -->|HTTP| API
+
+    subgraph Workflows["Mitro workflows"]
+        direction LR
+        P1["Phase 1<br/>Regulatory intelligence<br/>Ingest · extract · compare · draft"]
+        P2["Phase 2<br/>Code impact analysis<br/>Scan · map candidate locations"]
+        P3["Phase 3<br/>Code-change demo<br/>Propose · guard · test copy"]
+        P4["Change impact<br/>Version diff · dependencies"]
+    end
+
     API --> P1
     API --> P2
     API --> P3
     API --> P4
 
-    subgraph Workflows[Mitro workflows]
+    subgraph Inputs["Sources and targets"]
         direction LR
-        P1["1. Regulatory intelligence<br/>Ingest · extract · compare · review"]
-        P2["2. Code impact analysis<br/>Scan · map candidate locations"]
-        P3["3. Code change demo<br/>Propose · guard · test separate copy"]
-        P4["Change impact<br/>Regulatory versions · dependencies"]
+        CORPUS["Local source corpus<br/>+ uploaded documents"]
+        OFFICIAL["Allow-listed official URLs<br/>(checked on request)"]
+        REPO["Allowed local repository<br/>or GitHub App repo<br/>(Lendwise by default)"]
     end
 
-    subgraph Inputs[Sources and targets]
+    subgraph Storage["Local project data"]
         direction LR
-        Corpus[Local source corpus<br/>and uploaded documents]
-        Official[Allow-listed official URLs<br/>checked on request]
-        Repository[Allowed local repository<br/>Lendwise demo by default]
+        DB[("SQLAlchemy database<br/>SQLite default · PostgreSQL optional")]
+        COPIES["Separate edited copies<br/>tests · evidence · ZIPs"]
+        AUDIT["Workflow audit events"]
     end
 
-    subgraph Storage[Local project data]
+    subgraph AI["Optional drafting providers"]
         direction LR
-        Database[(SQLAlchemy database<br/>SQLite by default · PostgreSQL optional)]
-        Copies[Separate demo copies<br/>tests · evidence · ZIP downloads]
-        Audit[Workflow audit events]
+        SARVAM["Sarvam API<br/>clause text only"]
+        OLLAMA["Ollama<br/>local model"]
     end
 
-    subgraph Drafting[Optional obligation drafting providers]
-        direction LR
-        Sarvam[Sarvam API<br/>selected clause text only]
-        Ollama[Ollama<br/>local model]
+    P1 --> CORPUS
+    P1 -->|manual check| OFFICIAL
+    P1 -->|documents · clauses · obligations| DB
+    P1 -.->|optional draft| SARVAM
+    P1 -.->|optional draft| OLLAMA
+    P2 -->|read-only scan| REPO
+    P2 -->|candidate locations| DB
+    P3 -->|read source copy| REPO
+    P3 -->|guarded build + tests| COPIES
+    P3 -->|proposal + evidence| DB
+    P4 -->|compare / map| DB
+    API -->|record actions| AUDIT --> DB
+```
+
+### 2. Organisation view (compliance & risk)
+
+*What the compliance side does, and where a human decision is required.*
+
+```mermaid
+flowchart LR
+    A["📄 Regulatory source<br/>RBI / MeitY document"] --> B["Ingest<br/>upload · catalog · official URL"]
+    B --> C["Hash + version<br/>SHA-256 stored"]
+    C --> D["Extract clauses<br/>page-linked, OCR-flagged"]
+    D --> E["Compare versions<br/>redline + clause changes"]
+    D --> F["Draft obligation<br/>rule-based or Sarvam/Ollama"]
+    F --> G{{"👤 Reviewer<br/>checks exact clause quote"}}
+    G -->|approve| H["Approved obligation<br/>lifecycle + status history"]
+    G -->|reject / revise| F
+    H --> I["Engineering task<br/>owner · due date · blockers"]
+    H --> J["Audit trail<br/>who · what · when"]
+    E --> K["Regulatory change impact<br/>linked obligations to re-review"]
+    K --> G
+
+    classDef human fill:#fff4d6,stroke:#c98a00,color:#000;
+    class G human;
+```
+
+### 3. Software team view (engineering)
+
+*What the engineering side does with an approved obligation.*
+
+```mermaid
+flowchart LR
+    A["✅ Approved obligation<br/>from compliance review"] --> B["Select repository<br/>local folder or GitHub App branch"]
+    B --> C["Read-only scan<br/>multi-language patterns + code graph"]
+    C --> D["Candidate code locations<br/>path · snippet · reason"]
+    D --> E{{"👨‍💻 Engineer<br/>reviews candidates"}}
+    E --> F["Suggest code change<br/>(2 supported scenarios)"]
+    F --> G["🛡️ Safe Patch Guard<br/>allowlist · protected paths<br/>secret check · size limit"]
+    G -->|pass| H["Build separate copy<br/>original is never modified"]
+    G -->|fail| X["Blocked"]
+    H --> I["Run generated<br/>regression test"]
+    I --> J["Evidence + ZIP download"]
+    J --> K{{"Engineer approves"}}
+    K -->|optional, flag enabled| L["Draft PR on codex/mitro-obligation-*<br/>never pushes to default branch · never merges"]
+
+    classDef human fill:#fff4d6,stroke:#c98a00,color:#000;
+    classDef guard fill:#e6f4ea,stroke:#2e7d32,color:#000;
+    class E,K human;
+    class G guard;
+```
+
+### 4. Component map
+
+```mermaid
+flowchart TB
+    subgraph web["web/"]
+        HOME["home.html<br/>landing page"]
+        WB["index.html<br/>workbench"]
     end
 
-    P1 -->|read / ingest| Corpus
-    P1 -->|manual source check| Official
-    P1 -->|documents, clauses, obligations| Database
-    P1 -.->|optional draft request| Sarvam
-    P1 -.->|optional local draft request| Ollama
-    Sarvam -.->|draft for human review| P1
-    Ollama -.->|draft for human review| P1
+    subgraph mitro["mitro/"]
+        APP["api/app.py<br/>routes + static serving"]
+        GH["github_app.py<br/>App auth · webhooks · draft PRs"]
+        DEPS["dependencies.py<br/>offline dependency impact"]
+        SEC["security/untrusted.py<br/>prompt-injection pattern check"]
+        AUD["audit.py"]
+        DBM["database.py · db.py<br/>models + setup"]
+        subgraph p1["phase1/"]
+            ING["ingest.py"]
+            PAR["parser.py"]
+            RED["redline.py"]
+            MON["monitor.py"]
+            AID["ai_draft.py"]
+        end
+        subgraph p2["phase2/"]
+            SCN["scanner.py"]
+        end
+        subgraph p3["phase3/"]
+            CHG["changes.py"]
+            SAF["safety.py"]
+            BLD["build_copy.py"]
+        end
+    end
 
-    P2 -->|read-only scan| Repository
-    P2 -->|candidate locations| Database
-    P3 -->|read source copy| Repository
-    P3 -->|guarded build and regression checks| Copies
-    P3 -->|proposal and evidence| Database
-    P4 -->|compare versions / map candidates| Database
-    P4 -->|inspect candidate code| Repository
-    API -->|record workflow actions| Audit
-    Audit --> Database
+    subgraph amend["amend/"]
+        GRA["graph.py · canary.py · guard.py"]
+        VER["verify.py · evidence.py"]
+        WAT["watsonx.py · draft.py · screen.py"]
+    end
 
-    Database -.->|review data and results| API
-    Copies -.->|downloadable artifacts| API
+    subgraph data["Data"]
+        SRC["sources/<br/>PDFs · catalog.yaml · manifest.json"]
+        TGT["targets/lendwise/<br/>fictional NBFC app"]
+        GEN["data/<br/>mitro.db · phase3 copies"]
+    end
+
+    HOME --> APP
+    WB --> APP
+    APP --> p1
+    APP --> p2
+    APP --> p3
+    APP --> GH
+    APP --> DEPS
+    APP --> AUD --> DBM
+    p1 --> SRC
+    p1 --> SEC
+    p2 --> TGT
+    p2 --> GRA
+    p3 --> TGT
+    p3 --> GEN
+    p1 --> DBM
 ```
 
 ### Data flow
 
 1. A reviewer loads the supplied corpus, uploads a document, or requests a check of a catalogued official source.
-2. Mitro stores the source/version metadata and hash, extracts text, and creates clause candidates for review.
-3. A rule-based draft or optional Sarvam/Ollama-assisted draft can propose an engineering obligation. A reviewer checks the clause and approves or rejects the obligation.
-4. Mitro scans an allowed local repository and returns candidate code locations. The output does not assert that code is compliant or non-compliant.
-5. In the two supported demo cases, Mitro produces a patch proposal. Safe Patch Guard checks scope before Mitro applies the bundled patch to a separate copy and runs regression checks there.
+2. Mitro stores source/version metadata and hash, extracts text, and creates clause candidates.
+3. A rule-based or optional Sarvam/Ollama draft proposes an engineering obligation. A reviewer checks the clause and approves or rejects it.
+4. Mitro scans an allowed repository (read-only) and returns **candidate** code locations. It never asserts code is compliant or non-compliant.
+5. For the two supported demo cases, Mitro produces a patch proposal. Safe Patch Guard checks scope, Mitro applies the bundled patch to a **separate copy**, and regression checks run there.
 6. Workflow events and evidence are stored locally and surfaced in the UI/API.
 
-## Technology stack
+---
 
-Mitro uses a small, mostly Python-based stack:
+## Technology Stack
 
-- **Backend:** Python 3.11+, FastAPI, and Uvicorn.
-- **Frontend:** HTML, CSS, and vanilla JavaScript.
-- **Database:** SQLite by default; PostgreSQL can be configured.
-- **AI-assisted drafting (optional):** Sarvam API or a local Ollama model.
-- **Supporting libraries:** SQLAlchemy for database access, PyMuPDF and pypdf for documents, and HTTPX for HTTP requests.
+| Layer | Technology |
+| --- | --- |
+| **Backend** | Python 3.11+, FastAPI, Uvicorn |
+| **Frontend** | HTML, CSS, vanilla JavaScript |
+| **Database** | SQLAlchemy · SQLite (default) · PostgreSQL (optional, `psycopg`) |
+| **Documents** | PyMuPDF, pypdf; optional Docling, OCRmyPDF, PaddleOCR |
+| **Code analysis** | NetworkX (code graph), sqlglot (SQL), YAML-driven scenario catalogs |
+| **HTTP / auth** | HTTPX, PyJWT (GitHub App) |
+| **Optional AI drafting** | Sarvam API · local Ollama · IBM Granite on watsonx.ai (Amend engine) |
 
-### Where Sarvam AI is used
+### Where AI is used
 
-Sarvam is an **optional Phase 1 drafting provider** configured through `MITRO_LLM_PROVIDER=sarvam`. Mitro sends the selected regulatory clause text to the configured Sarvam chat-completions endpoint and treats the response as an unapproved draft. Exact quotation checks and human review remain local workflow steps. The repository scanner and Phase 3 patch templates do not send repository code to Sarvam.
+In the Mitro review workflow, AI drafting is **optional**. Selected regulatory clause text is sent to the configured drafting provider and the response is treated as an **unapproved draft**. Exact-quotation checks and human review remain part of the workflow. The bundled `amend/` engine has separate optional IBM watsonx.ai integrations for drafting and screening. The repository scanner and Phase 3 patch templates are deterministic; Mitro does not send repository code to Sarvam or Ollama for obligation drafting.
 
-Ollama is the default provider in `.env.example`. For Ollama, drafting requests remain on the local machine. Do not submit confidential or personal information to a hosted model provider.
+---
 
-## Quick start
+## Quick Start
 
 ### Requirements
 
-- Windows PowerShell for the included one-command launcher, or a compatible shell for manual setup.
-- Python 3.11 or newer.
-- Internet access for the initial Python dependency installation. Optional hosted-source checks and Sarvam usage also require network access.
+- Python **3.11+**
+- Windows PowerShell for the one-command launcher (or a compatible shell for manual setup)
+- Internet access for the first dependency install (and for optional hosted-source checks / Sarvam)
 
-### Windows PowerShell launcher
-
-From the project directory:
+### Option A — One command (Windows)
 
 ```powershell
 .\run-demo.ps1
 ```
 
-The script creates `.venv` if needed, installs `requirements.txt`, bootstraps the included regulatory corpus, and starts the local server at `http://127.0.0.1:8000`. Keep the terminal open while using Mitro; press `Ctrl+C` to stop it.
+This creates `.venv`, installs `requirements.txt`, bootstraps the regulatory corpus, and starts the server at `http://127.0.0.1:8000`. Press `Ctrl+C` to stop.
 
-### Manual setup
+### Option B — Manual setup
 
 ```powershell
 py -3.11 -m venv .venv
@@ -184,32 +349,45 @@ python -m mitro.cli bootstrap
 python -m uvicorn mitro.api.app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Open:
+| Page | URL |
+| --- | --- |
+| Landing page | <http://127.0.0.1:8000/> |
+| Workbench | <http://127.0.0.1:8000/workbench> |
+| API docs (Swagger) | <http://127.0.0.1:8000/docs> |
+| Health check | <http://127.0.0.1:8000/health> |
 
-- Landing page: <http://127.0.0.1:8000/>
-- Workbench: <http://127.0.0.1:8000/workbench>
-- Interactive API documentation: <http://127.0.0.1:8000/docs>
-- Health check: <http://127.0.0.1:8000/health>
+Bootstrap is safe to repeat; identical source hashes are de-duplicated.
 
-Bootstrap is safe to repeat; identical source file hashes are deduplicated.
+---
 
-### Database configuration
+## Configuration
 
-Mitro uses a local SQLite database by default at `data/mitro.db`. To use PostgreSQL, set `MITRO_DATABASE_URL`, for example:
+Copy `.env.example` to `.env`, edit, and restart Mitro. **Never commit `.env` or real credentials.**
 
-```text
+<details>
+<summary><b>Database</b></summary>
+
+SQLite is used by default at `data/mitro.db`. For PostgreSQL:
+
+```dotenv
 MITRO_DATABASE_URL=postgresql+psycopg://mitro:password@localhost/mitro
 ```
+</details>
 
-Set environment variables in the shell or copy `.env.example` to `.env` and edit it. Do not commit `.env` or real credentials.
+<details>
+<summary><b>AI drafting — Ollama (default, local)</b></summary>
 
-## Optional AI configuration
+```dotenv
+MITRO_LLM_PROVIDER=ollama
+MITRO_LLM_BASE_URL=http://127.0.0.1:11434/v1
+MITRO_LLM_MODEL=qwen2.5
+MITRO_LLM_TIMEOUT_SECONDS=90
+```
+Run `ollama pull qwen2.5` first. Clause text stays on your machine.
+</details>
 
-Copy the template and choose one provider. Restart Mitro after changing settings.
-
-### Sarvam
-
-Set these values in `.env` and replace the key with a key from your Sarvam account:
+<details>
+<summary><b>AI drafting — Sarvam (hosted)</b></summary>
 
 ```dotenv
 MITRO_LLM_PROVIDER=sarvam
@@ -219,14 +397,20 @@ MITRO_LLM_MODEL=sarvam-105b
 MITRO_LLM_API_VERSION=1
 MITRO_LLM_TIMEOUT_SECONDS=90
 ```
+Choose a model enabled for your account. Selected clause text is sent to Sarvam when a user requests an AI draft. Do not submit confidential or personal information.
+</details>
 
-Choose a model available to your account. The selected clause text is sent to Sarvam when a user requests an AI draft. AI drafting is optional; rule-based candidate drafting is available without it.
+<details>
+<summary><b>Scanning repositories outside the project</b></summary>
 
-Mitro sends clause text only to the drafting provider. Repository code is not included in these drafting requests.
+```dotenv
+MITRO_ALLOWED_REPO_ROOTS=C:\Projects;D:\Work
+```
+Separate paths with `;` on Windows. Restart the API after changing.
+</details>
 
-## Optional GitHub App configuration
-
-Mitro uses a GitHub App installation rather than a personal access token. Configure a GitHub App, then add these settings to `.env`:
+<details>
+<summary><b>GitHub App (optional)</b></summary>
 
 ```dotenv
 MITRO_GITHUB_APP_ID=your-app-id
@@ -236,101 +420,144 @@ MITRO_GITHUB_WEBHOOK_SECRET=your-long-random-webhook-secret
 MITRO_GITHUB_ENABLE_PULL_REQUESTS=false
 ```
 
-Set the GitHub App **Setup URL** to `http://127.0.0.1:8000/api/github/callback`; start with **Metadata: read** and **Contents: read** permissions. Subscribe to `push` and `pull_request` events and configure `http://127.0.0.1:8000/api/github/webhook` as the webhook URL. Open `/api/github/connect`, install the App into the GitHub account, then use `/api/github/status` and `/api/github/installations/{installation_record_id}/repositories` to select repositories. Select a branch before scanning. Localhost cannot receive remote webhook deliveries; use a reachable HTTPS webhook URL for GitHub push notifications.
+- **Setup URL:** `http://127.0.0.1:8000/api/github/callback`
+- **Webhook URL:** `http://127.0.0.1:8000/api/github/webhook` (needs a public HTTPS URL to receive remote deliveries)
+- **Permissions:** start with *Metadata: read* + *Contents: read*; subscribe to `push` and `pull_request`
+- **Flow:** open `/api/github/connect` → install the App → pick repository and branch → scan
+- **Draft PRs (off by default):** grant *Contents: write* and *Pull requests: write*, review the obligation and patch, pass the scoped scenario test, then set `MITRO_GITHUB_ENABLE_PULL_REQUESTS=true`. Mitro opens a draft PR from a separate `codex/mitro-obligation-*` branch. It never pushes to the default branch and never merges. The PR states that target-repository tests were **not run**.
+</details>
 
-Pull requests are disabled by default. To enable draft PRs, grant **Contents: write** and **Pull requests: write** to the App, review an obligation and its patch, pass the scoped scenario test, then set `MITRO_GITHUB_ENABLE_PULL_REQUESTS=true`. Mitro creates a separate `codex/mitro-obligation-*` branch and a draft PR; it never pushes to the default branch or merges. The passing test is the bundled scenario regression test. Mitro does not run arbitrary target repository test commands, so the PR explicitly reports target-repository tests as not run.
+<details>
+<summary><b>Optional PDF engines</b></summary>
 
-The App uses short-lived, repository-scoped installation tokens and does not store them in the database. For a local implementation check, GitHub API interactions can be mocked without contacting a real account or repository.
+Install the optional packages individually in the same Python environment when needed: `docling`, `ocrmypdf`, or `paddleocr`. Docling can produce structured document and Markdown artifacts; OCRmyPDF handles low-text PDFs with rotation and deskew and may require Tesseract; PaddleOCR is a fallback. PyMuPDF and pypdf remain the core PDF parsers. OCR output is marked for human verification. These optional packages are not included in `requirements.txt`.
+</details>
 
-## Optional PDF engines
+---
 
-Install the optional packages with `python -m pip install -r requirements-pdf.txt`. Docling saves a structured document and Markdown artifact; OCRmyPDF handles low-text PDFs with rotation and deskew; PaddleOCR is the fallback OCR engine. PyMuPDF still captures page text, source pages, and text rectangles. OCR results remain marked for human verification. OCRmyPDF also needs system executables such as Tesseract on Windows; when unavailable, Mitro falls back to PaddleOCR or the existing text parser.
+## Typical Review Workflow
 
-## Typical review workflow
+| # | Step | Owner |
+| --- | --- | --- |
+| 1 | Start Mitro and open the workbench | Either |
+| 2 | Review the source catalog or ingest an additional permitted document | 🏢 Organisation |
+| 3 | Inspect extracted text and clauses against the original PDF; correct extraction issues | 🏢 Organisation |
+| 4 | Compare versions of the same document when both are present | 🏢 Organisation |
+| 5 | Draft an obligation, check the exact clause quote, approve only when appropriate | 🏢 Organisation |
+| 6 | Scan Lendwise or an allowed repository; treat results as candidates | 💻 Software team |
+| 7 | For a supported scenario, inspect the diff, build a separate copy, run regression checks | 💻 Software team |
+| 8 | Download the ZIP; review audit history and impact reports | Both |
 
-1. Start Mitro and open the workbench.
-2. Review the included source catalog or ingest an additional permitted source document.
-3. Inspect extracted text and clause candidates against the original document. Correct extraction issues through review; scanned PDFs may require OCR.
-4. Compare versions of the same source document when both versions are present.
-5. Generate or write an obligation candidate, review its exact clause quotation, and approve it only when appropriate.
-6. Scan the bundled Lendwise demo or register an allowed local repository. Treat all reported code locations as candidates for review.
-7. For one of the two supported Phase 3 examples, inspect the proposed diff and evidence. If the change is approved for the demo, build a separate copy and run its regression checks.
-8. Download the resulting ZIP if needed, and review the audit history and impact reports.
+### Five-minute demo path
 
-To scan a repository outside the Mitro project directory, add its parent directory to `MITRO_ALLOWED_REPO_ROOTS` using semicolon-separated paths on Windows, then restart the API:
+1. Open **RBI NBFC IRACP Amendment Directions, 2026 – DLG provisioning** → clause **36C**.
+2. Click **Suggest code change** → Mitro points to `app/services/provisioning.py` and shows the diff.
+3. Click **Create separate edited copy and run test**.
+4. Download the edited Lendwise ZIP.
+5. If time permits, repeat with **Digital Lending ¶10.1** (legacy-import consent).
 
-```dotenv
-MITRO_ALLOWED_REPO_ROOTS=C:\Projects;D:\Work
-```
+See [DEMO_GUIDE.md](DEMO_GUIDE.md) for presenter notes.
 
-## Project structure
+---
+
+## API Overview
+
+Interactive docs are available at `/docs`. Main route groups:
+
+| Area | Representative endpoints |
+| --- | --- |
+| **Health** | `GET /health` · `GET /api/health` |
+| **Sources & ingestion** | `GET /api/sources` · `POST /api/sources/refresh` · `POST /api/ingest` · `POST /api/ingest-url` · `POST /api/bootstrap` |
+| **Documents & clauses** | `GET /api/documents` · `GET /api/versions/{id}/clauses` · `GET /api/versions/{id}/pdf` · `GET /api/redline` |
+| **Obligations** | `GET/POST /api/obligations` · `POST /api/ai-draft/{version_id}` · `POST /api/obligations/{id}/approve` · `POST /api/obligations/{id}/status` · `GET/POST /api/obligations/{id}/tasks` |
+| **Code impact** | `POST /api/scan` · `GET /api/impact/{obligation_id}` · `GET/POST /api/repositories` |
+| **Phase 3 (code change)** | `POST /api/phase3/proposals` · `POST /api/phase3/proposals/{id}/build` · `GET /api/phase3/proposals/{id}/download` |
+| **Change impact** | `GET /api/versions/{old}/impact/{new}` · `POST /api/dependencies/analyze` |
+| **GitHub** | `GET /api/github/status` · `GET /api/github/connect` · `POST /api/github/webhook` · `POST /api/github/repositories/{id}/scan` · `POST /api/github/proposals/{id}/pull-request` |
+| **Audit** | `GET /api/audit` |
+
+---
+
+## Project Structure
 
 ```text
 Mitro/
-├── mitro/
-│   ├── api/                 # FastAPI routes and web serving
-│   ├── phase1/              # Source ingestion, parsing, redlines, obligation drafts
-│   ├── phase2/              # Repository scanning and impact analysis
-│   ├── phase3/              # Patch scenarios, safety guard, separate-copy build
-│   ├── security/            # Untrusted-content checks
-│   ├── audit.py             # Workflow audit events
-│   ├── dependencies.py      # Offline dependency update analysis
-│   ├── database.py, db.py   # Database setup and models
-│   └── cli.py               # Bootstrap command
-├── amend/                   # Bundled Amend analysis engine
-├── web/                     # Landing page, workbench, and design variants
-├── sources/                 # Bundled documents and provenance catalog
-├── targets/lendwise/        # Fictional analysis target application
-├── data/                    # Local database and generated demo artifacts
-├── tests/                   # Improvement-feature tests
-├── run-demo.ps1             # Windows setup and launch helper
-├── requirements.txt         # Python dependencies
-├── pyproject.toml           # Python package metadata
-└── DEMO_GUIDE.md            # Suggested presenter walkthrough
+├── mitro/                      # Core application
+│   ├── api/                    #   FastAPI routes + web serving
+│   ├── phase1/                 #   Ingestion, parsing, redlines, monitoring, AI drafts
+│   ├── phase2/                 #   Repository scanning + impact analysis
+│   ├── phase3/                 #   Patch scenarios, safety guard, separate-copy build
+│   ├── security/               #   Untrusted-content checks
+│   ├── github_app.py           #   GitHub App auth, webhooks, draft PRs
+│   ├── dependencies.py         #   Offline dependency impact analysis
+│   ├── audit.py                #   Workflow audit events
+│   ├── database.py, db.py      #   Database setup and models
+│   └── cli.py                  #   `bootstrap` command
+├── amend/                      # Bundled analysis engine (graph, canary, guard, verify, evidence)
+├── web/                        # Landing page + workbench + design variants
+├── design/                     # UI concepts, previews and style experiments
+├── sources/                    # Regulatory PDFs/text, catalog.yaml, manifest.json
+├── targets/lendwise/           # Fictional NBFC target application
+├── data/                       # Local DB and generated Phase 3 artifacts
+├── tests/                      # Test suite
+├── run-demo.ps1                # Windows setup + launch helper
+├── requirements.txt            # Python dependencies
+├── pyproject.toml              # Package metadata
+├── DEMO_GUIDE.md               # Presenter walkthrough
+└── DESIGN.md                   # Design notes
 ```
 
-## Data, privacy, and safety boundaries
+---
 
-- Run the local API on `127.0.0.1`; it does not provide user authentication.
-- Use synthetic data only. Do not use real borrower records, credentials, or confidential production code in the demo.
-- Source and database files are stored locally unless a user explicitly requests an official source fetch or a Sarvam drafting request.
-- Sarvam receives selected regulatory clause text for the requested draft. Ollama runs locally. Neither provider receives repository code through the Phase 1 drafting path.
-- Source-fetch URLs are constrained to configured official domains. Source refresh is manual and on demand.
-- The Phase 3 builder applies only the bundled demo templates to a separate copy under `data/phase3/`; it does not modify the original Lendwise folder, push to GitHub, or deploy changes.
-- Safe Patch Guard restricts file scope and patch size for supported examples. It is a deterministic demo control, not a general-purpose sandbox for arbitrary AI-generated patches.
-- Human review remains necessary for source interpretation, applicability, obligations, proposed changes, and test results.
+## Security, Privacy & Safety Boundaries
 
-## Known limitations
+- Run the API on `127.0.0.1`. There is **no user authentication**.
+- Use **synthetic data only** — no real borrower records, credentials, or confidential production code.
+- Data stays local unless a user explicitly requests an official-source fetch or a Sarvam draft.
+- Source-fetch URLs are limited to configured official domains; refresh is manual.
+- Sarvam receives only selected clause text. Ollama runs locally. Neither receives repository code.
+- The Phase 3 builder applies **bundled templates to a separate copy** under `data/phase3/`. It does not modify the original Lendwise folder or deploy anything.
+- GitHub integration uses short-lived, repository-scoped installation tokens that are **not stored**. Pull requests are **off by default**, always **draft**, and never merge.
+- Safe Patch Guard is a deterministic demo control, **not** a general-purpose sandbox for arbitrary AI-generated patches.
+- Human review remains necessary for interpretation, applicability, obligations, proposed changes and test results.
 
-- Mitro is a local prototype, has no authentication, and is not production-hardened.
-- The included source set is finite. Some supplied source entries do not include exact official URLs; verify source identity, official links, and current versions before relying on them.
-- Clause splitting and PDF extraction are heuristic and can mishandle columns, tables, annexes, numbering, or OCR. Docling, OCRmyPDF, and PaddleOCR are supported through the optional dependencies; without them, Mitro uses PyMuPDF/pypdf and any available local Tesseract binary. Always compare extracted text with the original document.
-- PDF clauses retain their starting page and best-effort text rectangles, with links to the original PDF. Docling artifacts and page layout are stored separately when Docling is installed. Synchronized side-by-side PDF review is not implemented.
-- GitHub App installation, repository selection, branch scans, webhook verification, and draft PR creation are implemented but require an App registration and installation. Webhooks need a public HTTPS URL. Mitro does not store installation tokens or execute repository code.
-- Mitro's PR check runs the supported bundled scenario test, not the connected repository's own test suite in an isolated worker. The PR labels this clearly; the developer must run repository tests before merging.
-- Obligation lifecycle and engineering tasks are stored and audited, but this local prototype has no sign-in, role-based permissions, notifications, or organisation isolation.
-- Regulatory change matching relies substantially on citations. Renumbered, split, or merged clauses can require manual tracing.
-- Candidate code mapping is static and heuristic; it is not comprehensive semantic or runtime data-flow analysis. A missing match does not prove a control exists.
-- The optional prompt-injection check is pattern-based and cannot detect every malicious instruction.
-- Phase 3 supports only the two named synthetic scenarios. Its tests demonstrate selected behavior; they do not establish regulatory compliance or correctness for production systems.
-- Dependency analysis is offline. It does not query package registries, vulnerability databases, live release notes, or install or upgrade dependencies.
-- Audit history is an application-level event log, not a tamper-proof archive.
-- Lendwise is fictional. Its seeded scenarios are test fixtures, not legal findings or claims about any real lender.
+---
 
-## Development and verification
+## Known Limitations
 
-Install dependencies in a virtual environment, then run the API with reload enabled:
+- Local prototype: no authentication, roles, notifications or organisation isolation; not production-hardened.
+- The source set is finite; some entries lack exact official URLs. Verify identity, links and current versions before relying on them.
+- Clause splitting and PDF extraction are heuristic (columns, tables, annexes, numbering, OCR). Always compare against the original.
+- Synchronized side-by-side PDF review is not implemented.
+- Regulatory change matching leans on citations; renumbered, split or merged clauses may need manual tracing.
+- Code mapping is static and heuristic, not semantic or runtime data-flow analysis. A missing match does not prove a control exists.
+- Prompt-injection screening is pattern-based and cannot catch every malicious instruction.
+- Phase 3 supports only **two** named synthetic scenarios; its tests do not establish regulatory compliance or production correctness.
+- Pull-request checks run the bundled scenario test, not the connected repository's own tests — run those before merging.
+- Dependency analysis is offline (no registry or vulnerability database lookups).
+- Audit history is an application-level log, not a tamper-proof archive.
+- Lendwise is fictional; its scenarios are test fixtures, not findings about any real lender.
+
+---
+
+## Development & Verification
 
 ```powershell
+# Run with auto-reload
 python -m uvicorn mitro.api.app:app --host 127.0.0.1 --port 8000 --reload
-```
 
-Run the project’s unittest suite from the repository root:
-
-```powershell
+# Run the test suite
 python -m unittest discover -s tests -v
 ```
 
-The built-in Phase 3 flow also runs the generated regression checks in its separate edited copy when a supported proposal is built.
+The Phase 3 flow also runs its generated regression checks inside the separate edited copy whenever a supported proposal is built.
 
-For the presenter flow and sample obligation, see [DEMO_GUIDE.md](DEMO_GUIDE.md). For the local source inventory, see [sources/README.md](sources/README.md). For the fictional analysis target and its routes, see [targets/lendwise/README.md](targets/lendwise/README.md).
+---
+
+<div align="center">
+
+**Mitro** — a shared, evidence-backed review trail between compliance and engineering.
+
+*Prototype for review and demonstration. Not legal advice. Human review required.*
+
+</div>
