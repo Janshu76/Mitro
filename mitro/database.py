@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
-from mitro.db import Base, CodeChangeProposal
+from mitro.db import Base
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
@@ -14,16 +14,19 @@ opts = {"connect_args": {"check_same_thread": False}} if DB_URL.startswith("sqli
 engine = create_engine(DB_URL, **opts)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base.metadata.create_all(engine)
-# Small additive SQLite migrations keep existing local demo databases usable.
-if engine.dialect.name == "sqlite" and inspect(engine).has_table(CodeChangeProposal.__tablename__):
-    existing_columns = {c["name"] for c in inspect(engine).get_columns(CodeChangeProposal.__tablename__)}
-    with engine.begin() as conn:
-        for column in CodeChangeProposal.__table__.columns:
+# Small additive migrations keep existing local demo databases usable.
+inspector = inspect(engine)
+with engine.begin() as conn:
+    for table in Base.metadata.sorted_tables:
+        if not inspector.has_table(table.name):
+            continue
+        existing_columns = {c["name"] for c in inspector.get_columns(table.name)}
+        for column in table.columns:
             if column.name in existing_columns:
                 continue
             sql_type = column.type.compile(dialect=engine.dialect)
             default = " DEFAULT ''" if column.name in {"source_citation", "source_identifier", "source_url", "source_sha256"} else ""
-            conn.exec_driver_sql(f"ALTER TABLE {CodeChangeProposal.__tablename__} ADD COLUMN {column.name} {sql_type}{default}")
+            conn.exec_driver_sql(f"ALTER TABLE {table.name} ADD COLUMN {column.name} {sql_type}{default}")
 
 def get_db():
     db = SessionLocal()

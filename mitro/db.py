@@ -38,6 +38,8 @@ class Clause(Base):
     citation: Mapped[str] = mapped_column(String(120), index=True)
     ordinal: Mapped[int] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    coordinates: Mapped[list] = mapped_column(JSON, default=list)
     version: Mapped[DocumentVersion] = relationship(back_populates="clauses")
 
 class Obligation(Base):
@@ -52,6 +54,17 @@ class Obligation(Base):
     approved_by: Mapped[str] = mapped_column(String(160), default="")
     approved_at: Mapped[str] = mapped_column(String(40), default="")
     reviewer_note: Mapped[str] = mapped_column(Text, default="")
+
+class EngineeringTask(Base):
+    __tablename__ = "engineering_tasks"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    obligation_id: Mapped[int] = mapped_column(ForeignKey("obligations.id"), index=True)
+    title: Mapped[str] = mapped_column(String(300))
+    assignee: Mapped[str] = mapped_column(String(160), default="")
+    due_date: Mapped[str] = mapped_column(String(20), default="")
+    status: Mapped[str] = mapped_column(String(32), default="open", index=True)
+    blocker: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[str] = mapped_column(String(40))
 
 class RepositoryScan(Base):
     __tablename__ = "repository_scans"
@@ -81,6 +94,48 @@ class CodeRepository(Base):
     name: Mapped[str] = mapped_column(String(200), index=True)
     root_path: Mapped[str] = mapped_column(Text)
     source_kind: Mapped[str] = mapped_column(String(40), default="local_path")
+    created_at: Mapped[str] = mapped_column(String(40))
+
+class GitHubInstallation(Base):
+    __tablename__ = "github_installations"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    installation_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    account_login: Mapped[str] = mapped_column(String(200))
+    account_type: Mapped[str] = mapped_column(String(40), default="")
+    created_at: Mapped[str] = mapped_column(String(40))
+
+class GitHubRepository(Base):
+    __tablename__ = "github_repositories"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    installation_record_id: Mapped[int] = mapped_column(ForeignKey("github_installations.id"), index=True)
+    github_repo_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    full_name: Mapped[str] = mapped_column(String(300), index=True)
+    default_branch: Mapped[str] = mapped_column(String(200), default="main")
+    private: Mapped[bool] = mapped_column(default=False)
+    selected: Mapped[bool] = mapped_column(default=False, index=True)
+    last_scan_at: Mapped[str] = mapped_column(String(40), default="")
+    last_scan_summary: Mapped[dict] = mapped_column(JSON, default=dict)
+
+class GitHubWebhookDelivery(Base):
+    __tablename__ = "github_webhook_deliveries"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    delivery_id: Mapped[str] = mapped_column(String(120), unique=True, index=True)
+    event: Mapped[str] = mapped_column(String(80))
+    action: Mapped[str] = mapped_column(String(80), default="")
+    repository: Mapped[str] = mapped_column(String(300), default="")
+    received_at: Mapped[str] = mapped_column(String(40))
+    processed: Mapped[bool] = mapped_column(default=False)
+    summary: Mapped[dict] = mapped_column(JSON, default=dict)
+
+class GitHubPullRequest(Base):
+    __tablename__ = "github_pull_requests"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    proposal_id: Mapped[int] = mapped_column(ForeignKey("code_change_proposals.id"), index=True)
+    repository_id: Mapped[int] = mapped_column(ForeignKey("github_repositories.id"), index=True)
+    number: Mapped[int] = mapped_column(Integer)
+    url: Mapped[str] = mapped_column(Text)
+    head_branch: Mapped[str] = mapped_column(String(200))
+    state: Mapped[str] = mapped_column(String(40), default="open")
     created_at: Mapped[str] = mapped_column(String(40))
 
 class CodeChangeProposal(Base):

@@ -55,17 +55,19 @@ The fictional Lendwise application includes synthetic lending scenarios. Mitro c
 - **Regulatory source catalog:** supplied RBI and MeitY document copies are cataloged with identifiers, dates, and provenance metadata.
 - **Document ingestion:** accept PDF, text, Markdown, XML, and HTML uploads; fetch a single explicitly supplied HTTPS source URL from permitted official domains.
 - **On-demand source checks:** check catalogued official URLs when requested, retain changed copies as new versions, and calculate SHA-256 hashes. This is not continuous monitoring.
-- **Clause extraction and review:** extract text, segment it into clause candidates, preserve citations and source links, and flag cases that may need OCR or manual correction.
+- **Clause extraction and review:** extract text, segment it into clause candidates, retain the starting PDF page for each clause, open the original PDF at that page, and flag cases that may need OCR or manual correction.
 - **Version comparison:** compare versions of the same regulatory document and inspect text redlines and clause-level changes.
 - **Obligation drafting and approval:** create rule-based candidates or optional model-assisted drafts. Drafts remain proposals until a human reviewer approves them.
 - **Sarvam AI support:** optionally use Sarvam for Phase 1 obligation drafting from selected clause text. Sarvam is not used for repository scanning or patch generation.
-- **Repository registration and scanning:** register an allowed local repository, inventory supported code, and surface candidate code locations with paths, snippets, and obligation context.
+- **Repository registration and scanning:** register an allowed local repository or connect a GitHub App, select an installation repository and branch, inventory supported code read-only, and surface candidate code locations with paths and snippets.
 - **Regulatory change impact:** compare two document versions, find linked obligations, and map approved obligations to candidate code locations for re-review.
 - **Scoped code-change examples:** preview changes for exactly two bundled Lendwise scenarios: the DLG cover reduction after invocation example and consent validation in a legacy digital-lending path.
 - **Safe Patch Guard:** enforce scenario-specific file allowlists, protected paths, secret-like content checks, and patch size limits before creating a separate edited copy.
 - **Regression evidence:** run generated checks in the separate copy and retain the outcome as evidence about tested behavior.
 - **Dependency update impact:** inspect local dependency manifests and Python imports for a manually supplied version proposal. It does not install packages or check live vulnerability databases.
 - **Audit history:** record key workflow actions such as ingestion, approval, scans, patch building, and impact analysis.
+- **GitHub change control:** validate signed webhooks, scope short-lived installation tokens to selected repositories, and optionally open a draft pull request on a separate branch after an approved obligation, exact source match, passing scoped test, and deterministic patch safety check.
+- **Obligation lifecycle and engineering tasks:** move obligations through compliance and engineering review states, see the actor and note for each change, and assign dated engineering tasks with blockers and completion status.
 - **Local web workspace:** a landing page and workbench provide access to document review, obligations, scanning, code-change demonstrations, impact analysis, and audit history.
 
 ## System architecture
@@ -222,6 +224,28 @@ Choose a model available to your account. The selected clause text is sent to Sa
 
 Mitro sends clause text only to the drafting provider. Repository code is not included in these drafting requests.
 
+## Optional GitHub App configuration
+
+Mitro uses a GitHub App installation rather than a personal access token. Configure a GitHub App, then add these settings to `.env`:
+
+```dotenv
+MITRO_GITHUB_APP_ID=your-app-id
+MITRO_GITHUB_APP_SLUG=your-app-slug
+MITRO_GITHUB_PRIVATE_KEY_PATH=C:\secrets\mitro-app.pem
+MITRO_GITHUB_WEBHOOK_SECRET=your-long-random-webhook-secret
+MITRO_GITHUB_ENABLE_PULL_REQUESTS=false
+```
+
+Set the GitHub App **Setup URL** to `http://127.0.0.1:8000/api/github/callback`; start with **Metadata: read** and **Contents: read** permissions. Subscribe to `push` and `pull_request` events and configure `http://127.0.0.1:8000/api/github/webhook` as the webhook URL. Open `/api/github/connect`, install the App into the GitHub account, then use `/api/github/status` and `/api/github/installations/{installation_record_id}/repositories` to select repositories. Select a branch before scanning. Localhost cannot receive remote webhook deliveries; use a reachable HTTPS webhook URL for GitHub push notifications.
+
+Pull requests are disabled by default. To enable draft PRs, grant **Contents: write** and **Pull requests: write** to the App, review an obligation and its patch, pass the scoped scenario test, then set `MITRO_GITHUB_ENABLE_PULL_REQUESTS=true`. Mitro creates a separate `codex/mitro-obligation-*` branch and a draft PR; it never pushes to the default branch or merges. The passing test is the bundled scenario regression test. Mitro does not run arbitrary target repository test commands, so the PR explicitly reports target-repository tests as not run.
+
+The App uses short-lived, repository-scoped installation tokens and does not store them in the database. For a local implementation check, GitHub API interactions can be mocked without contacting a real account or repository.
+
+## Optional PDF engines
+
+Install the optional packages with `python -m pip install -r requirements-pdf.txt`. Docling saves a structured document and Markdown artifact; OCRmyPDF handles low-text PDFs with rotation and deskew; PaddleOCR is the fallback OCR engine. PyMuPDF still captures page text, source pages, and text rectangles. OCR results remain marked for human verification. OCRmyPDF also needs system executables such as Tesseract on Windows; when unavailable, Mitro falls back to PaddleOCR or the existing text parser.
+
 ## Typical review workflow
 
 1. Start Mitro and open the workbench.
@@ -280,7 +304,11 @@ Mitro/
 
 - Mitro is a local prototype, has no authentication, and is not production-hardened.
 - The included source set is finite. Some supplied source entries do not include exact official URLs; verify source identity, official links, and current versions before relying on them.
-- Clause splitting and PDF extraction are heuristic and can mishandle columns, tables, annexes, numbering, or OCR. Always compare extracted text with the original document.
+- Clause splitting and PDF extraction are heuristic and can mishandle columns, tables, annexes, numbering, or OCR. Docling, OCRmyPDF, and PaddleOCR are supported through the optional dependencies; without them, Mitro uses PyMuPDF/pypdf and any available local Tesseract binary. Always compare extracted text with the original document.
+- PDF clauses retain their starting page and best-effort text rectangles, with links to the original PDF. Docling artifacts and page layout are stored separately when Docling is installed. Synchronized side-by-side PDF review is not implemented.
+- GitHub App installation, repository selection, branch scans, webhook verification, and draft PR creation are implemented but require an App registration and installation. Webhooks need a public HTTPS URL. Mitro does not store installation tokens or execute repository code.
+- Mitro's PR check runs the supported bundled scenario test, not the connected repository's own test suite in an isolated worker. The PR labels this clearly; the developer must run repository tests before merging.
+- Obligation lifecycle and engineering tasks are stored and audited, but this local prototype has no sign-in, role-based permissions, notifications, or organisation isolation.
 - Regulatory change matching relies substantially on citations. Renumbered, split, or merged clauses can require manual tracing.
 - Candidate code mapping is static and heuristic; it is not comprehensive semantic or runtime data-flow analysis. A missing match does not prove a control exists.
 - The optional prompt-injection check is pattern-based and cannot detect every malicious instruction.
